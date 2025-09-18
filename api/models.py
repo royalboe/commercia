@@ -21,6 +21,8 @@ class User(AbstractUser):
         email (EmailField): Required unique email, used for login.
         phone_number (CharField): Optional phone number for contact.
         address (TextField): Optional address field.
+        date_of_birth (DateField): Optional date of birth field.
+        updated_at (DateTimeField): Timestamp of the last update.        
 
     Authentication:
         USERNAME_FIELD is set to 'email'.
@@ -44,6 +46,8 @@ class User(AbstractUser):
     email = models.EmailField(unique=True)
     phone_number = models.CharField(max_length=15, blank=True, null=True)
     address = models.TextField(blank=True, null=True)
+    date_of_birth = models.DateField(blank=True, null=True)
+    updated_at = models.DateTimeField(auto_now=True)
 
     USERNAME_FIELD = 'email'
     REQUIRED_FIELDS = ["username"]
