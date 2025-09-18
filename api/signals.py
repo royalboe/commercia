@@ -11,3 +11,4 @@ def update_order_total(sender, instance, **kwargs):
     """
     order = instance.order
     order.calculate_total()
+    order.save()

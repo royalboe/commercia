@@ -180,7 +180,7 @@ class Order(models.Model):
     order_id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='orders')
     products = models.ManyToManyField(Product, related_name='orders', through='OrderItem')
-    total_amount = models.DecimalField(max_digits=10, decimal_places=2)
+    total_amount = models.DecimalField(max_digits=10, decimal_places=2, default=0.00)
     status = models.CharField(max_length=20, choices=STATUS_CHOICES, default='pending', db_index=True)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
@@ -229,7 +229,7 @@ class OrderItem(models.Model):
 
     @property
     def total_price(self):
-        return self.product.price_at_order * self.quantity
+        return self.price_at_order * self.quantity
 
     def __str__(self):
         return f'{self.quantity} x {self.product.name}'
