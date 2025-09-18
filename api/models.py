@@ -1,5 +1,6 @@
 from django.db import models
 from django.contrib.auth.models import AbstractUser
+import uuid
 
 from .managers import CustomUserManager
 
@@ -41,6 +42,7 @@ class User(AbstractUser):
         ('customer', 'Customer'),
         ('admin', 'Admin'),
     )
+    user_id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     role = models.CharField(max_length=20, choices=ROLE_CHOICES, default='customer')
     username = models.CharField(max_length=150, unique=True, blank=True, null=True)
     email = models.EmailField(unique=True)
@@ -63,3 +65,174 @@ class User(AbstractUser):
 
     def __repr__(self):
         return f'{self.username or self.email} joined on {self.date_joined}'
+
+class Category(models.Model):
+    """
+    Category model representing product categories in the e-commerce platform.
+
+    Fields:
+        category_id (UUIDField): Primary key for the category.
+        name (CharField): Name of the category. Must be unique.
+        description (TextField): Detailed description of the category.
+        created_at (DateTimeField): Timestamp when the category was created.
+        updated_at (DateTimeField): Timestamp when the category was last updated.
+    Meta:
+        verbose_name: "Category"
+        verbose_name_plural: "Categories"
+    String Representations:
+        __str__: Returns the category name.
+        __repr__: Returns the category name along with its description.
+    """
+
+    category_id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+    name = models.CharField(max_length=255, unique=True)
+    description = models.TextField(blank=True, null=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        verbose_name = "Category"
+        verbose_name_plural = "Categories"
+
+    def __str__(self):
+        return self.name
+
+    def __repr__(self):
+        return f'{self.name} - {self.description}'
+
+class Product(models.Model):
+    """
+    Product model representing items available in the e-commerce platform.
+
+    Fields:
+        product_id (UUIDField): Primary key for the product.
+        name (CharField): Name of the product.
+        description (TextField): Detailed description of the product.
+        price (DecimalField): Price of the product with two decimal places.
+        stock (IntegerField): Available stock quantity.
+        created_at (DateTimeField): Timestamp when the product was created.
+        updated_at (DateTimeField): Timestamp when the product was last updated.
+
+    Meta:
+        verbose_name: "Product"
+        verbose_name_plural: "Products"
+
+    String Representations:
+        __str__: Returns the product name.
+        __repr__: Returns the product name along with its price.
+    """
+
+    product_id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+    name = models.CharField(max_length=255, unique=True, db_index=True)
+    description = models.TextField(blank=True, null=True)
+    price = models.DecimalField(max_digits=10, decimal_places=2)
+    stock = models.IntegerField()
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+    categories = models.ManyToManyField(Category, related_name='products', blank=True)
+
+    class Meta:
+        verbose_name = "Product"
+        verbose_name_plural = "Products"
+
+
+    @property
+    def is_in_stock(self):
+        return self.stock > 0
+
+    def __str__(self):
+        return self.name
+
+    def __repr__(self):
+        return f'{self.name} priced at {self.price}'
+    
+
+class Order(models.Model):
+    """
+    Order model representing customer orders in the e-commerce platform.
+
+    Fields:
+        order_id (UUIDField): Primary key for the order.
+        user (ForeignKey): Reference to the User who placed the order.
+        products (ManyToManyField): Products included in the order.
+        total_amount (DecimalField): Total amount for the order.
+        status (CharField): Current status of the order.
+        created_at (DateTimeField): Timestamp when the order was created.
+        updated_at (DateTimeField): Timestamp when the order was last updated.
+
+    Meta:
+        verbose_name: "Order"
+        verbose_name_plural: "Orders"
+
+    String Representations:
+        __str__: Returns the order ID and user email.
+        __repr__: Returns the order ID along with its status and total amount.
+    """
+
+    STATUS_CHOICES = (
+        ('pending', 'Pending'),
+        ('processing', 'Processing'),
+        ('shipped', 'Shipped'),
+        ('delivered', 'Delivered'),
+        ('canceled', 'Canceled'),
+    )
+
+    order_id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='orders')
+    products = models.ManyToManyField(Product, related_name='orders', through='OrderItem')
+    total_amount = models.DecimalField(max_digits=10, decimal_places=2)
+    status = models.CharField(max_length=20, choices=STATUS_CHOICES, default='pending', db_index=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        verbose_name = "Order"
+        verbose_name_plural = "Orders"
+
+    
+
+    def __str__(self):
+        return f'Order {self.order_id} by {self.user.email}'
+
+    def __repr__(self):
+        return f'Order {self.order_id}: {self.status} - Total: {self.total_amount}'
+    
+
+class OrderItem(models.Model):
+    """
+    Intermediate model representing products in an order with their quantities.
+
+    Fields:
+        order (ForeignKey): Reference to the Order.
+        product (ForeignKey): Reference to the Product.
+        quantity (IntegerField): Quantity of the product in the order.
+
+    Meta:
+        verbose_name: "Order Item"
+        verbose_name_plural: "Order Items"
+
+    String Representations:
+        __str__: Returns the product name and quantity in the order.
+        __repr__: Returns the product name along with its quantity and order ID.
+    """
+
+    order = models.ForeignKey(Order, on_delete=models.CASCADE, related_name='items')
+    product = models.ForeignKey(Product, on_delete=models.CASCADE, related_name='order_items')
+    quantity = models.PositiveIntegerField(default=1)
+    price_at_order = models.DecimalField(max_digits=10, decimal_places=2)
+
+
+    class Meta:
+        verbose_name = "Order Item"
+        verbose_name_plural = "Order Items"
+        unique_together = ('order', 'product')
+
+    @property
+    def total_price(self):
+        return self.product.price_at_order * self.quantity
+
+    def __str__(self):
+        return f'{self.quantity} x {self.product.name}'
+
+    def __repr__(self):
+        return f'OrderItem: {self.quantity} x {self.product.name} in Order {self.order.order_id}'
