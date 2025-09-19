@@ -1,6 +1,6 @@
-from django.db import models
+from django.contrib.auth.models import BaseUserManager
 
-class CustomUserManager(models.Manager):
+class CustomUserManager(BaseUserManager):
     """
     Custom user manager for the User model that uses email instead of username.
 

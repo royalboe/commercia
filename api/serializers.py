@@ -144,7 +144,7 @@ class UserCreateUpdateSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = User
-        fields = ["email", "username", "password", "role", "phone_number", "address", "date_of_birth"]
+        fields = ["email", "username", "password", "first_name", "last_name", "role", "phone_number", "address", "date_of_birth"]
         required_fields = ["email", "password"]
 
     def create(self, validated_data):
