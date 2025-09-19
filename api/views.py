@@ -4,7 +4,7 @@ from rest_framework import viewsets, status
 from .models import Category, User, Product, Order, OrderItem
 from .serializers import (CategorySerializer, CategoryCreateUpdateSerializer, 
                           UserSerializer, ProductSerializer, OrderSerializer, 
-                          OrderItemSerializer, OrderCreateUpdateSerializer, 
+                          OrderItemSerializer, OrderCreateSerializer, 
                           ProductCreateUpdateSerializer, UserCreateUpdateSerializer
 )
 # Create your views here.
@@ -89,6 +89,6 @@ class OrderViewSet(viewsets.ModelViewSet):
     def get_serializer_class(self):
         """Return appropriate serializer based on action."""
         if self.action in ['create', 'update', 'partial_update']:
-            return OrderCreateUpdateSerializer
+            return OrderCreateSerializer
         return super().get_serializer_class()
 
