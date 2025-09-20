@@ -77,6 +77,8 @@ class Category(models.Model):
         description (TextField): Detailed description of the category.
         created_at (DateTimeField): Timestamp when the category was created.
         updated_at (DateTimeField): Timestamp when the category was last updated.
+        slug (SlugField): URL-friendly identifier, auto-generated from name.
+        image_field (ImageField): Optional image for the category.
     Meta:
         verbose_name: "Category"
         verbose_name_plural: "Categories"
@@ -88,12 +90,19 @@ class Category(models.Model):
     category_id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     name = models.CharField(max_length=255, unique=True)
     description = models.TextField(blank=True, null=True)
+    image_field = models.ImageField(upload_to='category_images/', blank=True, null=True)
+    slug = models.SlugField(unique=True, blank=True, null=True)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 
     class Meta:
         verbose_name = "Category"
         verbose_name_plural = "Categories"
+
+    def save(self, *args, **kwargs):
+        if not self.slug:
+            self.slug = slugify(self.name)
+        super().save(*args, **kwargs)
 
     def __str__(self):
         return self.name
@@ -113,6 +122,9 @@ class Product(models.Model):
         stock (IntegerField): Available stock quantity.
         created_at (DateTimeField): Timestamp when the product was created.
         updated_at (DateTimeField): Timestamp when the product was last updated.
+        categories (ManyToManyField): Categories the product belongs to.
+        slug (SlugField): URL-friendly identifier, auto-generated from name.
+        image_field (ImageField): Optional image for the product.
 
     Meta:
         verbose_name: "Product"
