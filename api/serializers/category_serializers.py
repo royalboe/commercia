@@ -43,3 +43,19 @@ class CategoryDetailSerializer(serializers.ModelSerializer):
         model = Category
         fields = ['category_id', 'name', 'description', 'products', 'created_at', 'updated_at', 'image_field']
         read_only_fields = ['category_id', 'created_at', 'updated_at']
+
+
+class CategoryCreateUpdateSerializer(serializers.ModelSerializer):
+    """
+    Write serializer for Category.
+
+    Purpose:
+        - Allows creating and updating categories.
+
+    Fields:
+        name (CharField): Category name.
+        description (TextField): Category description.
+    """
+    class Meta:
+        model = Category
+        fields = ['name', 'description']
