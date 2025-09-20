@@ -144,7 +144,7 @@ class Product(models.Model):
     image_field = models.ImageField(upload_to='product_images/', blank=True, null=True) 
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
-    categories = models.ManyToManyField(Category, related_name='products', blank=True, on_delete=models.SET_NULL)
+    categories = models.ManyToManyField(Category, related_name='products', blank=True)
 
     class Meta:
         verbose_name = "Product"
