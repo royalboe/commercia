@@ -1,5 +1,6 @@
 from django.db import models
 from django.contrib.auth.models import AbstractUser
+from django.utils.text import slugify
 import uuid
 
 from .managers import CustomUserManager
@@ -127,6 +128,8 @@ class Product(models.Model):
     description = models.TextField(blank=True, null=True)
     price = models.DecimalField(max_digits=10, decimal_places=2)
     stock = models.IntegerField()
+    slug = models.SlugField(unique=True, blank=True, null=True)
+    image_field = models.ImageField(upload_to='product_images/', blank=True, null=True) 
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
     categories = models.ManyToManyField(Category, related_name='products', blank=True)
@@ -134,6 +137,11 @@ class Product(models.Model):
     class Meta:
         verbose_name = "Product"
         verbose_name_plural = "Products"
+
+    def save(self, *args, **kwargs):
+        if not self.slug:
+            self.slug = slugify(self.name)
+        super().save(*args, **kwargs)
 
 
     @property
@@ -189,7 +197,13 @@ class Order(models.Model):
         verbose_name = "Order"
         verbose_name_plural = "Orders"
 
-    
+    def calculate_total(self):
+        total = sum(
+            item.price_at_order * item.quantity for item in self.items.all()
+        )
+        self.total_price = total
+        self.save()
+        return total
 
     def __str__(self):
         return f'Order {self.order_id} by {self.user.email}'
@@ -229,7 +243,10 @@ class OrderItem(models.Model):
 
     @property
     def total_price(self):
-        return self.price_at_order * self.quantity
+        if self.price_at_order and self.quantity:
+            return self.price_at_order * self.quantity
+        else:
+            return 0
 
     def __str__(self):
         return f'{self.quantity} x {self.product.name}'
