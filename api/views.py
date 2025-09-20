@@ -2,11 +2,11 @@ from django.shortcuts import get_object_or_404
 from rest_framework import viewsets, status
 
 from .models import Category, User, Product, Order, OrderItem
-from .serializers import (CategorySerializer, CategoryCreateUpdateSerializer, 
-                          UserSerializer, ProductSerializer, OrderSerializer, 
-                          OrderItemSerializer, OrderCreateSerializer, 
-                          ProductCreateUpdateSerializer, UserCreateUpdateSerializer
-)
+from .serializers.product_serializers import ProductListSerializer, ProductDetailSerializer, ProductCreateUpdateSerializer
+from .serializers.user_serializers import UserListSerializer, UserDetailSerializer, UserCreateUpdateSerializer
+from .serializers.order_serializers import OrderSerializer, OrderCreateSerializer
+from .serializers.category_serializers import (
+    CategoryListSerializer, CategoryDetailSerializer, CategoryCreateUpdateSerializer)
 # Create your views here.
 
 class UserViewSet(viewsets.ModelViewSet):
@@ -25,12 +25,14 @@ class UserViewSet(viewsets.ModelViewSet):
     """
 
     queryset = User.objects.all()
-    serializer_class = UserSerializer
+    serializer_class = UserListSerializer
 
     def get_serializer_class(self):
         """Return appropriate serializer based on action."""
         if self.action in ['create', 'update', 'partial_update']:
             return UserCreateUpdateSerializer
+        elif self.action == 'retrieve':
+            return UserDetailSerializer
         return super().get_serializer_class()
 
 class CategoryViewSet(viewsets.ModelViewSet):
@@ -51,7 +53,9 @@ class CategoryViewSet(viewsets.ModelViewSet):
     def get_serializer_class(self):
         if self.action in ['create', 'update', 'partial_update']:
             return CategoryCreateUpdateSerializer
-        return CategorySerializer
+        elif self.action == 'retrieve':
+            return CategoryDetailSerializer
+        return CategoryListSerializer
 
 class ProductViewSet(viewsets.ModelViewSet):
     """
@@ -66,7 +70,9 @@ class ProductViewSet(viewsets.ModelViewSet):
     def get_serializer_class(self):
         if self.action in ['create', 'update', 'partial_update']:
             return ProductCreateUpdateSerializer
-        return ProductSerializer
+        elif self.action == 'retrieve':
+            return ProductDetailSerializer
+        return ProductListSerializer
     
 class OrderViewSet(viewsets.ModelViewSet):
     """
