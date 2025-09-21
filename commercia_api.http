@@ -1,0 +1,86 @@
+###
+GET http://localhost:8080/api/users/
+
+###
+GET http://localhost:8080/api/categories/
+
+###
+GET http://localhost:8080/api/products/
+
+###
+GET http://localhost:8080/api/orders/
+
+###
+GET http://localhost:8080/api/carts/
+
+###
+GET http://localhost:8080/api/carts/1fcf9c54-54b7-4c03-a93f-370203e04f6b/
+
+###
+POST http://localhost:8080/api/carts/
+Content-Type: application/json
+
+{
+    "cart_code": "ABC_577",
+    "items": [
+        {
+            "product": "7e157e94-23d5-47a7-9069-7fcebf75f592",
+            "quantity": "6"
+        },
+        {
+            "product": "ccebb85c-514e-4b91-9527-6a10836e9e06",
+            "quantity": "2"
+        }
+    ]
+}
+
+
+###
+POST http://localhost:8080/api/carts/
+Content-Type: application/json
+
+{
+    "cart_code": "ABC_577",
+    "items": [
+        {
+            "product": "camry-2009-xle",
+            "quantity": "6"
+        }
+    ]
+}
+
+###
+PUT http://localhost:8080/api/carts/1fcf9c54-54b7-4c03-a93f-370203e04f6b/
+Content-Type: application/json
+
+{
+    "cart_code": "ABC_1234",
+    "items": [
+        {
+            "product": "7e157e94-23d5-47a7-9069-7fcebf75f592",
+            "quantity": 8
+        },
+        {
+            "product": "ccebb85c-514e-4b91-9527-6a10836e9e06",
+            "quantity": 5
+        }
+    ]
+}
+
+###
+PATCH http://localhost:8080/api/carts/1fcf9c54-54b7-4c03-a93f-370203e04f6b/
+Content-Type: application/json
+
+{
+    "items": [
+        {
+            "product": "",
+            "quantity": 8
+        },
+        {
+            "product": "ccebb85c-514e-4b91-9527-6a10836e9e06",
+            "quantity": 5
+        }
+    ]
+}
+
