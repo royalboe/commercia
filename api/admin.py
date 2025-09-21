@@ -83,7 +83,7 @@ class OrderAdmin(admin.ModelAdmin):
 
 class ProductAdmin(admin.ModelAdmin):
     """Admin customization for Products."""
-    list_display = ("name", "price", "stock")
+    list_display = ("name", "price", "stock", "product_id")
     list_filter = ("categories",)
     search_fields = ("name", "description")
     autocomplete_fields = ["categories"]

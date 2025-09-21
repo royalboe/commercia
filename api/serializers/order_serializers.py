@@ -76,6 +76,8 @@ class OrderCreateSerializer(serializers.ModelSerializer):
     """
     class OrderItemCreateSerializer(serializers.ModelSerializer):
         """Serializer for creating order items."""
+        
+
         class Meta:
             model = OrderItem
             fields = ['product', 'quantity']
@@ -92,6 +94,7 @@ class OrderCreateSerializer(serializers.ModelSerializer):
         order = Order.objects.create(**validated_data)
         for item_data in items_data:
             product = item_data['product']
+            print(product)
             quantity = item_data['quantity']
             OrderItem.objects.create(
                 order=order, 
