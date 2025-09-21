@@ -8,7 +8,7 @@ from .serializers.user_serializers import UserListSerializer, UserDetailSerializ
 from .serializers.order_serializers import OrderSerializer, OrderCreateSerializer
 from .serializers.category_serializers import (
     CategoryListSerializer, CategoryDetailSerializer, CategoryCreateUpdateSerializer)
-from .serializers.cart_serializers import CartSerializer, CartItemSerializer
+from .serializers.cart_serializers import CartSerializer, CartItemSerializer, CartCreateUpdateSerializer
 # Create your views here.
 
 class UserViewSet(viewsets.ModelViewSet):
@@ -122,8 +122,8 @@ class CartViewSet(viewsets.ModelViewSet):
 
     def get_serializer_class(self):
         """Allow switching serializer if needed"""
-        if self.action == "stats":
-            return CartStatSerializer
+        if self.action in ['create', 'update', 'partial_update']:
+            return CartCreateUpdateSerializer
         return super().get_serializer_class()
 
     @action(detail=False, methods=["post"])
