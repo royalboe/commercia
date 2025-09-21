@@ -265,3 +265,81 @@ class OrderItem(models.Model):
 
     def __repr__(self):
         return f'OrderItem: {self.quantity} x {self.product.name} in Order {self.order.order_id}'
+    
+
+class Cart(models.Model):
+    """
+    Cart model representing a user's shopping cart in the e-commerce platform.
+
+    Fields:
+        cart_id (UUIDField): Primary key for the cart.
+        user (OneToOneField): Reference to the User who owns the cart.
+        products (ManyToManyField): Products added to the cart.
+        created_at (DateTimeField): Timestamp when the cart was created.
+        updated_at (DateTimeField): Timestamp when the cart was last updated.
+
+    Meta:
+        verbose_name: "Cart"
+        verbose_name_plural: "Carts"
+
+    String Representations:
+        __str__: Returns the cart ID and user email.
+        __repr__: Returns the cart ID along with its creation date.
+    """
+
+    cart_id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+    # user = models.OneToOneField(User, on_delete=models.CASCADE, related_name='cart')
+    cart_code = models.CharField(max_length=11, unique=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        verbose_name = "Cart"
+        verbose_name_plural = "Carts"
+
+
+    def __str__(self):
+        return f'Cart {self.cart_id} for {self.user.email}'
+
+    def __repr__(self):
+        return f'Cart {self.cart_id} created on {self.created_at}'
+    
+
+class CartItem(models.Model):
+    """
+    Intermediate model representing products in a cart with their quantities.
+
+    Fields:
+        cart (ForeignKey): Reference to the Cart.
+        product (ForeignKey): Reference to the Product.
+        quantity (IntegerField): Quantity of the product in the cart.
+        is_active (BooleanField): Indicates if the item is active in the cart.
+
+    Meta:
+        verbose_name: "Cart Item"
+        verbose_name_plural: "Cart Items"
+
+    String Representations:
+        __str__: Returns the product name and quantity in the cart.
+        __repr__: Returns the product name along with its quantity and cart ID.
+    """
+
+    cart = models.ForeignKey(Cart, on_delete=models.CASCADE, related_name='items')
+    product = models.ForeignKey(Product, on_delete=models.CASCADE, related_name='cart_items')
+    quantity = models.PositiveIntegerField(default=1)
+    is_active = models.BooleanField(default=True)
+
+    class Meta:
+        verbose_name = "Cart Item"
+        verbose_name_plural = "Cart Items"
+        unique_together = ('cart', 'product')
+
+    @property
+    def sub_total(self):
+        return self.product.price * self.quantity
+
+    def __str__(self):
+        return f'{self.quantity} x {self.product.name}'
+
+    def __repr__(self):
+        return f'CartItem: {self.quantity} x {self.product.name} in Cart {self.cart.cart_id}'
