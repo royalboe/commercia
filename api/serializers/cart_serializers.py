@@ -65,6 +65,14 @@ class CartCreateUpdateSerializer(serializers.ModelSerializer):
         items (List of Nested Serializer): List of items to add/update in the cart.
     """
     class ItemInputSerializer(serializers.ModelSerializer):
+        quantity = serializers.IntegerField(default=1)
+        # product = serializers.PrimaryKeyRelatedField(
+        #     queryset=Product.objects.all()
+        # )
+        product = serializers.SlugRelatedField(
+            slug_field='slug',
+            queryset=Product.objects.all()
+        )
         class Meta:
             model = CartItem
             fields = ['product', 'quantity']
@@ -72,7 +80,7 @@ class CartCreateUpdateSerializer(serializers.ModelSerializer):
     items = ItemInputSerializer(many=True, write_only=True)
     class Meta:
         model = Cart
-        fields = ['user','items']
+        fields = ['cart_code', 'items']
 
     def create(self, validated_data):
         items_data = validated_data.pop('items', [])
@@ -81,17 +89,18 @@ class CartCreateUpdateSerializer(serializers.ModelSerializer):
             product = item_data['product']
             quantity = item_data.get('quantity', 1)
             CartItem.objects.create(cart=cart, product=product, quantity=quantity)
-        cart.calculate_total()
         cart.save()
         return cart
 
     def update(self, instance, validated_data):
         items_data = validated_data.pop('items', [])
-        instance.items.all().delete()  # Clear existing items
+        # instance.items.all().delete()  # Clear existing items
         for item_data in items_data:
             product = item_data['product']
             quantity = item_data.get('quantity', 1)
-            CartItem.objects.create(cart=instance, product=product, quantity=quantity)
-        instance.calculate_total()
+            cart_item, created = CartItem.objects.get_or_create(cart=instance, product=product, quantity=quantity)
+            if not created:
+                cart_item.quantity = quantity
+                cart_item.save()
         instance.save()
         return instance
