@@ -288,8 +288,21 @@ class Cart(models.Model):
     """
 
     cart_id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
-    # user = models.OneToOneField(User, on_delete=models.CASCADE, related_name='cart')
-    cart_code = models.CharField(max_length=11, unique=True)
+    user = models.OneToOneField(
+        User, 
+        on_delete=models.CASCADE, 
+        related_name='cart', 
+        null=True, 
+        blank=True, 
+        help_text="Authenticated user who owns the cart. Null for guest carts."
+        )
+    cart_code = models.CharField(
+        max_length=11, 
+        unique=True, 
+        null=True, 
+        blank=True, 
+        help_text="Unique code for guest carts"
+        )
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 
