@@ -82,13 +82,16 @@ class CartCreateUpdateSerializer(serializers.ModelSerializer):
         model = Cart
         fields = ['cart_code', 'items']
 
-    def create(self, validated_data):
+    def create(self, validated_data):       
         items_data = validated_data.pop('items', [])
+
         cart = Cart.objects.create(**validated_data)
+        
+        # Create CartItems
         for item_data in items_data:
             product = item_data['product']
             quantity = item_data.get('quantity', 1)
-            CartItem.objects.create(cart=cart, product=product, quantity=quantity)
+            CartItem.objects.update_or_create(cart=cart, product=product, quantity=quantity)
         cart.save()
         return cart
 
@@ -102,5 +105,7 @@ class CartCreateUpdateSerializer(serializers.ModelSerializer):
             if not created:
                 cart_item.quantity = quantity
                 cart_item.save()
+
+
         instance.save()
         return instance
