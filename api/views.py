@@ -125,3 +125,12 @@ class CartViewSet(viewsets.ModelViewSet):
         if self.action in ['create', 'update', 'partial_update']:
             return CartCreateUpdateSerializer
         return super().get_serializer_class()
+
+    def perform_create(self, serializer):
+        if self.request.user.is_authenticated:
+            serializer.save(user=self.request.user)
+        else:
+            if not self.request.session.exists(self.request.session.session_key):
+                self.request.session.create()
+            serializer.save(cart_code=self.request.session.session_key)
+    
