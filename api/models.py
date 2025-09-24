@@ -427,6 +427,29 @@ class ProductRating(models.Model):
     def __repr__(self):
         return f'{self.product.name} - {self.average_rating}'
 
+class Wishlist(models.Model):
+    """
+    Model representing a user's wishlist.
+
+    Fields:
+        wishlist_id (PrimaryKey): Primary key for wishlist
+        user (ForeignKey): Reference to the User.
+        products (ManyToManyField): Products in the wishlist.
+
+    Meta:
+        verbose_name: "Wishlist"
+        verbose_name_plural: "Wishlists"
+    """
+    wishlist_id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='wishlist')
+    products = models.ManyToManyField(Product, related_name='wishlists')
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+        return f'{self.user.username}\'s Wishlist'
+
+    def __repr__(self):
+        return f'{self.user.username}\'s Wishlist'
 
 # class ProductImage(models.Model):
 #     """
