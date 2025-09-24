@@ -158,3 +158,19 @@ GET http://localhost:8080/api/reviews/ HTTP/1.1
 
 ###
 DELETE http://localhost:8080/api/reviews/2a1c7979-680d-4729-b5ec-8077e12c03c6/ HTTP/1.1
+
+
+
+###
+GET http://localhost:8080/api/wishlists/ HTTP/1.1
+Authorization: Token ea206c026f44aaaac790420e67e5567926060863
+
+
+###
+POST http://localhost:8080/api/wishlists/ HTTP/1.1
+Authorization: Token ea206c026f44aaaac790420e67e5567926060863
+Content-Type: application/json
+
+{
+    "product": "electric-iron"
+}

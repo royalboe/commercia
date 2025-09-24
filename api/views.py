@@ -1,9 +1,12 @@
 from rest_framework.decorators import action
 from rest_framework.response import Response
-from rest_framework import viewsets, status
+from rest_framework import viewsets, permissions
 
-from .models import Category, User, Product, Order, Cart, Review
-from .serializers.product_serializers import ProductListSerializer, ProductDetailSerializer, ProductCreateUpdateSerializer
+from .models import Category, User, Product, Order, Cart, Review, Wishlist
+from .serializers.product_serializers import (ProductListSerializer, ProductDetailSerializer, 
+                                              ProductCreateUpdateSerializer, WishlistSerializer,
+                                              WishlistCreateUpdateSerializer
+                                              )
 from .serializers.user_serializers import UserListSerializer, UserDetailSerializer, UserCreateUpdateSerializer
 from .serializers.order_serializers import OrderSerializer, OrderCreateSerializer
 from .serializers.category_serializers import (
@@ -159,4 +162,34 @@ class ReviewViewSet(viewsets.ModelViewSet):
         """Return appropriate serializer based on action."""
         if self.action in ['create', 'update', 'partial_update']:
             return ReviewCreateSerializer
+        return super().get_serializer_class()
+
+class WishlistViewSet(viewsets.ModelViewSet):
+    """
+    ViewSet for managing wishlists.
+
+    Provides:
+        - list: Retrieve all wishlists.
+        - retrieve: Get a specific wishlist by ID.
+        - create: Add a new wishlist.
+        - update: Modify an existing wishlist.
+        - destroy: Remove a wishlist.
+    """
+
+    queryset = Wishlist.objects.all()
+    serializer_class = WishlistSerializer
+    permission_classes = [permissions.IsAuthenticated]
+
+    def get_queryset(self):
+        # User can only see their wishlist
+        return Wishlist.objects.filter(user=self.request.user)
+
+    def perform_create(self, serializer):
+        # Ensure wishlist is tied to logged-in user
+        serializer.save(user=self.request.user)
+
+    def get_serializer_class(self):
+        """Return appropriate serializer based on action."""
+        if self.action in ['create', 'update', 'partial_update']:
+            return WishlistCreateUpdateSerializer
         return super().get_serializer_class()
