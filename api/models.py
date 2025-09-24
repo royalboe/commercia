@@ -356,3 +356,49 @@ class CartItem(models.Model):
 
     def __repr__(self):
         return f'CartItem: {self.quantity} x {self.product.name} in Cart {self.cart.cart_id}'
+    
+
+class Review(models.Model):
+    """
+    Review model representing customer reviews for products.
+
+    Fields:
+        review_id (UUIDField): Primary key for the review.
+        product (ForeignKey): Reference to the Product being reviewed.
+        user (ForeignKey): Reference to the User who wrote the review.
+        rating (PositiveIntegerField): Rating given by the user.
+        description (TextField): Detailed description of the review.
+        created_at (DateTimeField): Timestamp when the review was created.
+        updated_at (DateTimeField): Timestamp when the review was last updated.
+
+    Meta:
+        verbose_name: "Review"
+        verbose_name_plural: "Reviews"
+        unique_together: ('product', 'user')"""
+
+    RATING_CHOICES = [
+        (1, '1 - Poor'),
+        (2, '2 - Fair'),
+        (3, '3 - Good'),
+        (4, '4 - Very Good'),
+        (5, '5 - Excellent')
+    ]
+
+    product = models.ForeignKey(Product, on_delete=models.Cascade, related_name='reviews')
+    user = models.ForeignKey(User, on_delete=models.Cascade, related_name='user_reviews')
+    rating = models.PositiveIntegerField()
+    description = models.TextField()
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        unique_together = ('product', 'user')
+        ordering = ['-created_at']
+        verbose_name = "Review"
+        verbose_name_plural = "Reviews"
+
+    def __str__(self):
+        return f'{self.user.username} - {self.product.name}'
+
+    def __repr__(self):
+        return f'{self.user.username} - {self.product.name} - {self.rating}'
