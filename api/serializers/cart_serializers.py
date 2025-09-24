@@ -80,7 +80,7 @@ class CartCreateUpdateSerializer(serializers.ModelSerializer):
     items = ItemInputSerializer(many=True, write_only=True)
     class Meta:
         model = Cart
-        fields = ['cart_code', 'items']
+        fields = ['user', 'cart_code', 'items']
 
     def create(self, validated_data):       
         items_data = validated_data.pop('items', [])
