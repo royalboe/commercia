@@ -297,7 +297,7 @@ class Cart(models.Model):
         help_text="Authenticated user who owns the cart. Null for guest carts."
         )
     cart_code = models.CharField(
-        max_length=11, 
+        max_length=32, 
         unique=True, 
         null=True, 
         blank=True, 
