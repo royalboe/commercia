@@ -2,6 +2,7 @@ from rest_framework import serializers
 
 from api.models import Product, Wishlist
 
+
 class ProductListSerializer(serializers.ModelSerializer):
     """
     Read-only serializer for the Product model.

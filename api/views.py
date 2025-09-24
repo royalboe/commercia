@@ -1,18 +1,26 @@
+from rest_framework import permissions, viewsets
 from rest_framework.decorators import action
 from rest_framework.response import Response
-from rest_framework import viewsets, permissions
 
-from .models import Category, User, Product, Order, Cart, Review, Wishlist
-from .serializers.product_serializers import (ProductListSerializer, ProductDetailSerializer, 
-                                              ProductCreateUpdateSerializer, WishlistSerializer,
-                                              WishlistCreateUpdateSerializer
-                                              )
-from .serializers.user_serializers import UserListSerializer, UserDetailSerializer, UserCreateUpdateSerializer
-from .serializers.order_serializers import OrderSerializer, OrderCreateSerializer
-from .serializers.category_serializers import (
-    CategoryListSerializer, CategoryDetailSerializer, CategoryCreateUpdateSerializer)
-from .serializers.cart_serializers import CartSerializer, CartCreateUpdateSerializer
-from .serializers.review_serializers import ReviewSerializer, ReviewCreateSerializer
+from .models import Cart, Category, Order, Product, Review, User, Wishlist
+from .serializers.cart_serializers import (CartCreateUpdateSerializer,
+                                           CartSerializer)
+from .serializers.category_serializers import (CategoryCreateUpdateSerializer,
+                                               CategoryDetailSerializer,
+                                               CategoryListSerializer)
+from .serializers.order_serializers import (OrderCreateSerializer,
+                                            OrderSerializer)
+from .serializers.product_serializers import (ProductCreateUpdateSerializer,
+                                              ProductDetailSerializer,
+                                              ProductListSerializer,
+                                              WishlistCreateUpdateSerializer,
+                                              WishlistSerializer)
+from .serializers.review_serializers import (ReviewCreateSerializer,
+                                             ReviewSerializer)
+from .serializers.user_serializers import (UserCreateUpdateSerializer,
+                                           UserDetailSerializer,
+                                           UserListSerializer)
+
 # Create your views here.
 
 class UserViewSet(viewsets.ModelViewSet):
