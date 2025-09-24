@@ -403,3 +403,51 @@ class Review(models.Model):
 
     def __repr__(self):
         return f'{self.user.username} - {self.product.name} - {self.rating}'
+    
+
+class ProductRating(models.Model):
+    """
+    Model representing the rating statistics for a product.
+
+    Fields:
+        product (OneToOneField): Reference to the Product.
+        average_rating (DecimalField): Average rating of the product.
+        total_ratings (IntegerField): Total number of ratings for the product.
+
+    Meta:
+        verbose_name: "Product Rating"
+    """
+    product = models.OneToOneField(Product, on_delete=models.CASCADE, related_name='rating')
+    average_rating = models.DecimalField(max_digits=3, decimal_places=2, default=0.00)
+    total_ratings = models.PositiveIntegerField(default=0)
+
+    def __str__(self):
+        return f'{self.product.name} - {self.average_rating}'
+
+    def __repr__(self):
+        return f'{self.product.name} - {self.average_rating}'
+
+
+# class ProductImage(models.Model):
+#     """
+#     Model representing images associated with a product.
+
+#     Fields:
+#         product (ForeignKey): Reference to the Product.
+#         image (ImageField): Image file.
+#         created_at (DateTimeField): Timestamp when the image was created.
+#         updated_at (DateTimeField): Timestamp when the image was last updated.
+
+#     Meta:
+#         verbose_name: "Product Image"
+#         verbose_name_plural: "Product Images"
+#     """
+
+#     product = models.ForeignKey(Product, on_delete=models.CASCADE, related_name='images')
+#     image = models.ImageField(upload_to='product_images/')
+#     created_at = models.DateTimeField(auto_now_add=True)
+#     updated_at = models.DateTimeField(auto_now=True)
+
+#     class Meta:
+#         verbose_name = "Product Image"
+#         verbose_name_plural = "Product Images"
