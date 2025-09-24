@@ -2,13 +2,14 @@ from rest_framework.decorators import action
 from rest_framework.response import Response
 from rest_framework import viewsets, status
 
-from .models import Category, User, Product, Order, Cart, CartItem
+from .models import Category, User, Product, Order, Cart, Review
 from .serializers.product_serializers import ProductListSerializer, ProductDetailSerializer, ProductCreateUpdateSerializer
 from .serializers.user_serializers import UserListSerializer, UserDetailSerializer, UserCreateUpdateSerializer
 from .serializers.order_serializers import OrderSerializer, OrderCreateSerializer
 from .serializers.category_serializers import (
     CategoryListSerializer, CategoryDetailSerializer, CategoryCreateUpdateSerializer)
-from .serializers.cart_serializers import CartSerializer, CartItemSerializer, CartCreateUpdateSerializer
+from .serializers.cart_serializers import CartSerializer, CartCreateUpdateSerializer
+from .serializers.review_serializers import ReviewSerializer, ReviewCreateSerializer
 # Create your views here.
 
 class UserViewSet(viewsets.ModelViewSet):
@@ -134,3 +135,28 @@ class CartViewSet(viewsets.ModelViewSet):
                 self.request.session.create()
             serializer.save(cart_code=self.request.session.session_key)
     
+
+class ReviewViewSet(viewsets.ModelViewSet):
+    """
+    ViewSet for managing reviews.
+
+    Provides:
+        - list: Retrieve all reviews.
+        - retrieve: Get a specific review by ID.
+        - create: Add a new review.
+        - update: Modify an existing review.
+        - destroy: Remove a review.
+    """
+
+    queryset = Review.objects.all()
+    serializer_class = ReviewSerializer
+
+    def perform_create(self, serializer):
+        if self.request.user.is_authenticated:
+            serializer.save(user=self.request.user)
+        return super().perform_create(serializer)
+    def get_serializer_class(self):
+        """Return appropriate serializer based on action."""
+        if self.action in ['create', 'update', 'partial_update']:
+            return ReviewCreateSerializer
+        return super().get_serializer_class()
