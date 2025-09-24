@@ -1,5 +1,6 @@
 # signals.py
-from django.db.models.signals import post_save, post_delete, user_logged_in
+from django.db.models.signals import post_save, post_delete
+from django.contrib.auth.signals import user_logged_in
 from django.dispatch import receiver
 from .models import OrderItem, Cart
 from .services import cart
@@ -24,7 +25,7 @@ def handle_cart_merge(sender, user, request, **kwargs):
     if not session_key:
         return
     try:
-        session_cart = Cart.objects.get(session_key=session_key, user__isnull=True)
+        session_cart = Cart.objects.get(cart_code=session_key, user__isnull=True)
     except Cart.DoesNotExist:
         return
     
