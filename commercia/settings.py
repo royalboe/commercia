@@ -50,7 +50,8 @@ INSTALLED_APPS = [
     'api',
     'rest_framework.authtoken',
     'djoser',
-    'corsheaders'
+    'corsheaders',
+    'drf_spectacular'
 ]
 
 MIDDLEWARE = [
@@ -155,6 +156,7 @@ REST_FRAMEWORK = {
         'rest_framework.authentication.TokenAuthentication',
         'rest_framework.authentication.SessionAuthentication'
     ],
+    "DEFAULT_SCHEMA_CLASS": "drf_spectacular.openapi.AutoSchema",
 }
 
 
@@ -164,4 +166,12 @@ SIMPLE_JWT = {
         'rest_framework_simplejwt.tokens.AccessToken',
     ),
     "USER_ID_FIELD": "user_id"
+}
+
+SPECTACULAR_SETTINGS = {
+    'TITLE': 'Commercia ECommerce API',
+    'DESCRIPTION': 'This is the backend API for Commercia E-Commerce backend Application',
+    'VERSION': '1.0.0',
+    'SERVE_INCLUDE_SCHEMA': False,
+    # OTHER SETTINGS
 }
