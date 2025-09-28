@@ -51,7 +51,8 @@ INSTALLED_APPS = [
     'rest_framework.authtoken',
     'djoser',
     'corsheaders',
-    'drf_spectacular'
+    'drf_spectacular',
+    'storages'
 ]
 
 MIDDLEWARE = [
@@ -138,10 +139,11 @@ USE_TZ = True
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/5.2/howto/static-files/
 
-STATIC_URL = 'static/'
+STATIC_URL = 'staticfiles/'
 MEDIA_URL = '/media/'
 
 MEDIA_ROOT = BASE_DIR/'media'
+STATIC_ROOT = BASE_DIR/'staticfiles'
 
 # Default primary key field type
 # https://docs.djangoproject.com/en/5.2/ref/settings/#default-auto-field
@@ -175,3 +177,30 @@ SPECTACULAR_SETTINGS = {
     'SERVE_INCLUDE_SCHEMA': False,
     # OTHER SETTINGS
 }
+
+# S3 Configuration
+
+AWS_ACCESS_KEY_ID = env.str("AWS_ACCESS_KEY_ID")
+AWS_SECRET_ACCESS_KEY = env.str("AWS_SECRET_ACCESS_KEY")
+AWS_STORAGE_BUCKET_NAME = env.str("AWS_STORAGE_BUCKET_NAME")
+AWS_S3_REGION_NAME = env.str("AWS_S3_REGION_NAME")
+
+# S3bCustom Endpoint
+AWS_S3_CUSTOM_DOMAIN = f"{AWS_STORAGE_BUCKET_NAME}.s3.amazonaws.com"
+
+# Static files
+STATIC_URL = f"https://{AWS_S3_CUSTOM_DOMAIN}/static/"
+STATICFILES_STORAGE = "api.storage_backends.StaticStorage"
+
+# Media files
+DEFAULT_FILE_STORAGE = "api.storage_backends.MediaStorage"
+MEDIA_URL = f"https://{AWS_S3_CUSTOM_DOMAIN}/media/"
+
+# Security
+# SECURE_BROWSER_XSS_FILTER = True
+# SECURE_CONTENT_TYPE_NOSNIFF = True
+# SECURE_SSL_REDIRECT = True
+# SESSION_COOKIE_SECURE = True
+# CSRF_COOKIE_SECURE = True
+# X_FRAME_OPTIONS = "DENY"
+
