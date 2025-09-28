@@ -1,6 +1,7 @@
 from rest_framework import permissions, viewsets
 from rest_framework.decorators import action
 from rest_framework.response import Response
+from rest_framework.permissions import IsAuthenticated, IsAdminUser
 
 from .models import Cart, Category, Order, Product, Review, User, Wishlist
 from .serializers.cart_serializers import (CartCreateUpdateSerializer,
@@ -107,12 +108,35 @@ class OrderViewSet(viewsets.ModelViewSet):
 
     queryset = Order.objects.all()
     serializer_class = OrderSerializer
+    permission_classes = [IsAuthenticated]
+
+    def get_queryset(self):
+        """Filter orders based on user or admin."""
+        if self.request.user.is_staff:
+            return Order.objects.all()
+        return Order.objects.filter(user=self.request.user)
+    
+    def get_permissions(self):
+        if self.action in ['destroy']:
+            self.permission_classes = [IsAdminUser]
+        return super().get_permissions()
+    
+    def get_serializer_context(self):
+        """Add user to serializer context."""
+        if self.request.user.is_authenticated:
+            context = {'user': self.request.user}
+            return context
+        return super().get_serializer_context()
 
     def get_serializer_class(self):
         """Return appropriate serializer based on action."""
         if self.action in ['create', 'update', 'partial_update']:
             return OrderCreateSerializer
         return super().get_serializer_class()
+    
+    def perform_create(self, serializer):
+        if self.request.user.is_authenticated:
+            serializer.save(user=self.request.user)
 
 class CartViewSet(viewsets.ModelViewSet):
     """
@@ -145,6 +169,14 @@ class CartViewSet(viewsets.ModelViewSet):
             if not self.request.session.exists(self.request.session.session_key):
                 self.request.session.create()
             serializer.save(cart_code=self.request.session.session_key)
+    
+    def get_queryset(self):
+        """Filter carts based on user or session."""
+        if self.request.user.is_authenticated:
+            return Cart.objects.filter(user=self.request.user)
+        if not self.request.session.exists(self.request.session.session_key):
+            self.request.session.create()
+        return Cart.objects.filter(cart_code=self.request.session.session_key)
     
 
 class ReviewViewSet(viewsets.ModelViewSet):

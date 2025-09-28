@@ -1,7 +1,7 @@
 from rest_framework import serializers
 from django.db import transaction
 
-from api.models import Order, OrderItem
+from api.models import Order, OrderItem, Cart, CartItem
 
 
 class OrderItemSerializer(serializers.ModelSerializer):
@@ -47,15 +47,12 @@ class OrderSerializer(serializers.ModelSerializer):
         items (Nested Serializer, read-only): List of items in the order.
     """
     user_email = serializers.EmailField(source='user.email', read_only=True)
-    items = OrderItemSerializer(many=True, read_only=True, source='items')
+    items = OrderItemSerializer(many=True, read_only=True)
     
     class Meta:
         model = Order
         fields = ['order_id', 'user_email', 'total_amount', 'status', 'created_at', 'updated_at', 'items']
         read_only_fields = ['order_id', 'total_amount', 'created_at', 'updated_at', 'items']
-
-
-
 
 
 class OrderCreateSerializer(serializers.ModelSerializer):
@@ -83,28 +80,44 @@ class OrderCreateSerializer(serializers.ModelSerializer):
             fields = ['product', 'quantity']
     
     items = OrderItemCreateSerializer(many=True, write_only=True)
+    cart = serializers.PrimaryKeyRelatedField(
+        queryset=Cart.objects.all(), 
+        write_only=True        
+    )
+
+    def validate_cart(self, cart):
+        if not cart.cartitems.exists():
+            raise serializers.ValidationError("Sorry, your cart is empty")
+        return cart
 
     class Meta:
         model = Order
-        fields = ['user', 'items', 'status']
+        fields = ['status', 'items', 'cart']
 
     def create(self, validated_data):
-        """Create an order with items and calculate total amount."""
-        items_data = validated_data.pop('items')
-        order = Order.objects.create(**validated_data)
-        for item_data in items_data:
-            product = item_data['product']
-            print(product)
-            quantity = item_data['quantity']
-            OrderItem.objects.create(
-                order=order, 
-                product=product,
-                quantity=quantity, 
-                price_at_order=product.price
-            )
-        order.calculate_total()
-        order.save()
-        return order
+        with transaction.atomic():
+            order = Order.objects.create(**validated_data)
+            cart = validated_data.get('cart', None)
+            if cart is None:
+                items = validated_data.pop('items', None)
+                if items is None:
+                    raise serializers.ValidationError("No cart or items provided")
+                for item in items:
+                    OrderItem.objects.create(order=order, **item)
+            cart_items = cart.items.all()
+            
+            
+            orderitems = [
+                OrderItem(order=order, product=item.product, quantity=item.quantity, price_at_order=item.product.price)
+                for item in items.all() if item.is_active
+            ]
+
+            OrderItem.objects.bulk_create(orderitems)
+            cart_items.filter(is_active=True).delete()
+            cart.save()
+            order.calculate_total()
+            order.save()
+            return order
     
     def update(self, instance, validated_data):
         """Update an order and its items, then recalculate total."""
@@ -120,3 +133,4 @@ class OrderCreateSerializer(serializers.ModelSerializer):
         instance.calculate_total()
         instance.save()
         return instance
+    

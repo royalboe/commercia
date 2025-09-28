@@ -6,7 +6,7 @@ def merge_carts(session_cart, user_cart):
         for item in session_cart.items.all():
             cart_item, created = user_cart.items.get_or_create(
                 product=item.product,
-                defaults={"quantity": item.quantity}
+                defaults={"quantity": item.quantity, "is_active": item.is_active}
             )
             if not created:
                 cart_item.quantity += item.quantity

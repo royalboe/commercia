@@ -24,7 +24,7 @@ class CartItemSerializer(serializers.ModelSerializer):
     
     class Meta:
         model = CartItem
-        fields = ['id', 'product_name', 'quantity', 'price', 'sub_total']
+        fields = ['id', 'product_name', 'quantity', 'price', 'sub_total', 'is_active']
         read_only_fields = ['id', 'product_name', 'price', 'sub_total']
 
 
@@ -75,7 +75,7 @@ class CartCreateUpdateSerializer(serializers.ModelSerializer):
         )
         class Meta:
             model = CartItem
-            fields = ['product', 'quantity']
+            fields = ['product', 'quantity', 'is_active']
 
     items = ItemInputSerializer(many=True, write_only=True)
     class Meta:
@@ -84,14 +84,21 @@ class CartCreateUpdateSerializer(serializers.ModelSerializer):
 
     def create(self, validated_data):       
         items_data = validated_data.pop('items', [])
-
-        cart = Cart.objects.create(**validated_data)
+        request = self.context.get('request')
+        if request.user.is_authenticated:
+            cart, _ = Cart.objects.get_or_create(user=request.user)
+        else:
+            cart_code = request.session.session_key
+            cart, _ = Cart.objects.get_or_create(cart_code=cart_code)
         
+        self.update(cart, {'items': items_data})
         # Create CartItems
-        for item_data in items_data:
-            product = item_data['product']
-            quantity = item_data.get('quantity', 1)
-            CartItem.objects.update_or_create(cart=cart, product=product, quantity=quantity)
+        # for item_data in items_data:
+        #     product = item_data['product']
+        #     quantity = item_data.get('quantity', 1)
+        #     is_active = item_data.get('is_active', True)
+        #     CartItem.objects.update_or_create(cart=cart, product=product, defaults={"quantity": quantity, "is_active": is_active})
+            
         cart.save()
         return cart
 
@@ -101,11 +108,11 @@ class CartCreateUpdateSerializer(serializers.ModelSerializer):
         for item_data in items_data:
             product = item_data['product']
             quantity = item_data.get('quantity', 1)
-            cart_item, created = CartItem.objects.get_or_create(cart=instance, product=product, quantity=quantity)
+            is_active = item_data.get('is_active', True)
+            cart_item, created = CartItem.objects.get_or_create(cart=instance, product=product, defaults={"quantity": quantity, "is_active": is_active})
             if not created:
-                cart_item.quantity = quantity
+                cart_item.quantity += quantity
+                cart_item.is_active = is_active
                 cart_item.save()
-
-
         instance.save()
         return instance
