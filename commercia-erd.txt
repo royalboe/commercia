@@ -1,0 +1,222 @@
+notation crows-foot
+users [icon: user, color: blue] {
+  user_id uuid pk indexed
+  first_name varchar not null
+  last_name varchar not null
+  email varchar unique not null indexed
+  phone_number unique null
+  password_hash varchar not null
+  joined_at timestamp default current_timestamp
+  date_host_started date null
+}
+
+
+language [icon: chat, color: blue] {
+  language_id uuid pk
+  language varchar unique not null
+}
+
+user_language [icon: chat, color: blue] {
+  id uuid pk
+  language_id uuid fk
+  user_id uuid fk
+}
+
+user_role [icon: user, color: yellow]{
+  role_id uuid fk not null
+  user_id uuid fk not null
+}
+
+role [icon: user, color: yellow]{
+  role_id uuid pk indexed
+  role_name varchar not null
+}
+
+properties [icon: home, color: green] {
+  property_id uuid pk indexed
+  host_id uuid fk not null
+  location_id uuid fk not null
+  place_type_id uuid fk
+  property_type_id uuid fk
+  name varchar not null
+  description text not null
+  price_per_night decimal not null
+  max_guests  integer null
+  num_bathroom integer null
+  num_bedroom integer null
+  address_1 text not null
+  created_at timestamp default current_timestamp
+  updated_at timestamp default current_timestamp
+  is_favorite boolean default false
+}
+
+category [icon: container, color: green] {
+  category_id uuid pk
+  category_name varchar unique not null
+}
+
+place_type [icon: container, color: green] {
+  place_type_id uuid pk
+  place_type_name varchar unique not null
+}
+
+property_type [icon: container, color: green] {
+  property_type_id uuid pk
+  property_type_name varchar unique not null
+}
+
+property_category {
+  id uuid pk
+  property_id uuid fk not null
+  category_id uuid fk not null
+}
+
+
+attribute [icon: container, color: green] {
+  attribute_id uuid pk
+  attribute_category_id uuid fk
+  attribute_name varchar unique not null
+  description text
+}
+
+attribute_category [icon: container, color: green] {
+  attribute_category_id uuid pk
+  attribute_category_name varchar unique not null
+}
+
+property_attribute {
+  id uuid pk
+  property_id uuid fk not null
+  attribute_id uuid fk not null
+}
+
+images [icon: image, color: green]{
+  image_id uuid pk
+  property_id uuid fk not null
+  image_url varchar not null
+  image_order integer
+}
+
+location [icon: city, color: orange] {
+  location_id uuid pk
+  city varchar not null
+  state varchar null
+  country_id fk uuid not null
+}
+
+country [icon: aws-region, color: orange] {
+  country_id uuid pk
+  region_id uuid fk not null
+  country_name varchar not null unique
+}
+
+region [icon: aws-region, color: orange] {
+  region_id uuid pk
+  region_name varchar not null unique
+}
+
+favorites [icon: heart, color: red] {
+  user_id uuid fk not null
+  property_id uuid fk not null
+}
+
+booking [icon: book-open, color: pink] {
+  booking_id uuid pk indexed
+  property_id uuid fk not null
+  guest_id uuid fk not null
+  start_date date not null
+  end_date date not null
+  booking_status enum(comfirmed, pending, cancelled)
+  service_fee decimal null
+  cleaning_fee decimal null
+  total_price decimal not null
+  created_at timestamp default current_timestamp
+}
+
+booking_guests [icon: users, color: pink] {
+  booking_id uuid fk
+  guest_type_id uuid fk
+  no_guest integer
+}
+
+guest_type [icon: users, color: pink] {
+  guest_type_id uuid pk
+  guest_type_name varchar unique not null
+}
+
+message [icon: message-circle, color: purple] {
+  message_id uuid pk indexed
+  sender_id uuid fk not null
+  recipient_id uuid fk not null
+  message_body text not null
+  created_at timestamp default current_timestamp
+}
+
+review [icon: book, color: white]{
+  review_id uuid pk
+  user_id uuid fk not null
+  property_id uuid fk not null
+  rating integer check 1 and 10
+  comment text
+  created_at timestamp default current_timestamp
+}
+
+review_components [icon: container, color: white] {
+  component_id uuid pk
+  component_name varchar unique  
+}
+
+component_rating [icon: book, color: white] {
+  component_id uuid fk
+  review_id uuid fk 
+  rating integer 
+}
+
+payment [icon: money, color: blue] {
+  payment_id uuid pk
+  booking_id uuid fk
+  amount decimal not null
+  payment_date timestamp default current_timestamp
+  payment_method_id uuid fk
+  payment_status enum(pending, completed, failed) not null
+  transaction_id integer not null
+}
+
+payment_method [icon: money, color: blue] {
+  payment_method_id uuid pk
+  payment_name varchar unique not null
+}
+
+users.user_id < properties.host_id
+users.user_id < user_role.user_id
+role.role_id < user_role.role_id
+users.user_id < favorites.user_id
+users.user_id < message.sender_id
+users.user_id < message.recipient_id
+user.user_id < user_language.user_id
+language.language_id < user_language.language_id
+
+properties.property_id < favorites.property_id
+images.property_id > properties.property_id
+properties.place_type_id > place_type.place_type_id
+properties.property_type_id > property_type.property_type_id
+properties.property_id < property_category.property_id
+category.category_id < property_category.property_id
+properties.location_id > location.location_id
+location.country_id > country.country_id
+region.region_id < country.region_id
+property_category.property_id > properties.property_id
+category.category_id < property_category.category_id
+properties.property_id < property_attribute.property_id
+attribute.attribute_id < property_attribute.attribute_id
+attribute.attribute_category_id > attribute_category.attribute_category_id
+
+booking.booking_id < booking_guests.booking_id
+guest_type.guest_type_id < booking_guests.guest_type_id
+booking.property_id > properties.property_id
+
+review.review_id < component_rating.review_id
+review_components.component_id < component_rating.component_id
+
+payment.payment_method_id > payment_method.payment_method_id
+payment.booking_id > booking.booking_id

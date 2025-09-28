@@ -52,7 +52,8 @@ INSTALLED_APPS = [
     'djoser',
     'corsheaders',
     'drf_spectacular',
-    'storages'
+    'storages',
+    'django_extensions'
 ]
 
 MIDDLEWARE = [
