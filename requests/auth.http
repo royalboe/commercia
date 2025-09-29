@@ -5,8 +5,8 @@ POST {{host}}/auth/token/login/
 Content-Type: application/json
 
 {
-    "email": "adminuser@test.com",
-    "password": "test"
+    "email": "{{email}}",
+    "password": "{{password}}"
 }
 
 ### Logout (Token)
@@ -18,8 +18,8 @@ POST {{host}}/auth/jwt/create/
 Content-Type: application/json
 
 {
-    "email": "adminuser@test.com",
-    "password": "test"
+    "email": "{{email}}",
+    "password": "{{password}}"
 }
 
 ### Logout (JWT)
