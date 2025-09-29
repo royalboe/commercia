@@ -1,0 +1,15 @@
+### PRODUCTS
+
+### List Products
+GET {{host}}/api/products/
+
+### Create Product
+POST {{host}}/api/products/
+Content-Type: application/json
+Authorization: Token {{token}}
+
+{
+    "name": "Electric Iron",
+    "price": 50.67,
+    "stock": 50
+}
