@@ -140,11 +140,11 @@ USE_TZ = True
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/5.2/howto/static-files/
 
-STATIC_URL = 'staticfiles/'
-MEDIA_URL = '/media/'
+# STATIC_URL = 'staticfiles/'
+# MEDIA_URL = '/media/'
 
-MEDIA_ROOT = BASE_DIR/'media'
-STATIC_ROOT = BASE_DIR/'staticfiles'
+# MEDIA_ROOT = BASE_DIR/'media'
+# STATIC_ROOT = BASE_DIR/'staticfiles'
 
 # Default primary key field type
 # https://docs.djangoproject.com/en/5.2/ref/settings/#default-auto-field
@@ -186,17 +186,49 @@ AWS_SECRET_ACCESS_KEY = env.str("AWS_SECRET_ACCESS_KEY")
 AWS_STORAGE_BUCKET_NAME = env.str("AWS_STORAGE_BUCKET_NAME")
 AWS_S3_REGION_NAME = env.str("AWS_S3_REGION_NAME")
 
-# S3bCustom Endpoint
-AWS_S3_CUSTOM_DOMAIN = f"{AWS_STORAGE_BUCKET_NAME}.s3.amazonaws.com"
+AWS_S3_READY = (
+    AWS_ACCESS_KEY_ID is not None
+    and AWS_SECRET_ACCESS_KEY is not None
+    and AWS_STORAGE_BUCKET_NAME is not None
+    and AWS_S3_REGION_NAME is not None
+)
 
-# Static files
-STATIC_URL = f"https://{AWS_S3_CUSTOM_DOMAIN}/static/"
-STATICFILES_STORAGE = "api.storage_backends.StaticStorage"
 
-# Media files
-DEFAULT_FILE_STORAGE = "api.storage_backends.MediaStorage"
-MEDIA_URL = f"https://{AWS_S3_CUSTOM_DOMAIN}/media/"
+STORAGES = {
+    "default": {
+        "BACKEND": "api.storage_backends.MediaStorage",
+    },
+    "staticfiles": {
+        "BACKEND": "api.storage_backends.StaticStorage",
+    },
+}
+if AWS_S3_READY:
+    # S3 Custom Endpoint
+    AWS_S3_CUSTOM_DOMAIN = f"{AWS_STORAGE_BUCKET_NAME}.s3.amazonaws.com"
 
+    # Static files
+    STATIC_URL = f"https://{AWS_S3_CUSTOM_DOMAIN}/static/"
+    # STATICFILES_STORAGE = "storages.backends.s3boto3.S3Boto3Storage"
+
+    # Media files
+    # DEFAULT_FILE_STORAGE = "storages.backends.s3boto3.S3Boto3Storage"
+    MEDIA_URL = f"https://{AWS_S3_CUSTOM_DOMAIN}/media/"
+
+    STATIC_ROOT = BASE_DIR / "staticfiles"
+else:
+    STATIC_URL = "/staticfiles/"
+    MEDIA_URL = "/media/" 
+
+STATIC_ROOT = BASE_DIR / "staticfiles"
+MEDIA_ROOT = BASE_DIR / "media"
+
+STATICFILES_DIRS = [
+    BASE_DIR / 'static',
+]
+
+print(f"AWS_S3_READY: {AWS_S3_READY}")
+print(f"DEBUG: {DEBUG}")
+print(f"STATICFILES_STORAGE: {STORAGES['staticfiles']['BACKEND']}")
 # Security
 # SECURE_BROWSER_XSS_FILTER = True
 # SECURE_CONTENT_TYPE_NOSNIFF = True
