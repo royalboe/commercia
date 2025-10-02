@@ -1,7 +1,20 @@
 ### PRODUCTS
 
 ### List Products
-GET {{host}}/api/products/
+GET {{host}}/api/products/ HTTP/1.1
+
+### Search for products
+GET {{host}}/api/products?search=fan HTTP/1.1
+
+### Search for products
+GET {{host}}/api/products?name__iexact=fan HTTP/1.1
+
+
+### Checking for proce
+GET {{host}}/api/products?min_price=300
+
+### Ordering by price
+GET {{host}}/api/products?ordering=-price
 
 ### Create Product
 POST {{host}}/api/products/

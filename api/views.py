@@ -1,9 +1,12 @@
-from rest_framework import permissions, viewsets
+from rest_framework import permissions, viewsets, filters
 from rest_framework.decorators import action
 from rest_framework.response import Response
 from rest_framework.permissions import IsAuthenticated, IsAdminUser
 
+from django_filters.rest_framework import DjangoFilterBackend
+
 from .models import Cart, Category, Order, Product, Review, User, Wishlist
+from .filters import CategoryFilter, ProductFilter
 from .serializers.cart_serializers import (CartCreateUpdateSerializer,
                                            CartSerializer)
 from .serializers.category_serializers import (CategoryCreateUpdateSerializer,
@@ -65,6 +68,7 @@ class CategoryViewSet(viewsets.ModelViewSet):
 
     queryset = Category.objects.all()
     lookup_field = 'slug'
+    filterset_class = CategoryFilter
 
     def get_serializer_class(self):
         if self.action in ['create', 'update', 'partial_update']:
@@ -83,6 +87,10 @@ class ProductViewSet(viewsets.ModelViewSet):
     """
     queryset = Product.objects.all()
     lookup_field = 'slug'
+    filter_backends = [filters.SearchFilter, filters.OrderingFilter, DjangoFilterBackend]
+    filterset_class = ProductFilter
+    search_fields = ['name', 'description']
+    ordering_fields = ['name', 'price', 'created_at']
 
     def get_serializer_class(self):
         if self.action in ['create', 'update', 'partial_update']:
