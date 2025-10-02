@@ -112,9 +112,11 @@ class OrderViewSet(viewsets.ModelViewSet):
 
     def get_queryset(self):
         """Filter orders based on user or admin."""
-        if self.request.user.is_staff:
-            return Order.objects.all()
-        return Order.objects.filter(user=self.request.user)
+        qs = super().get_queryset()
+        user = self.request.user
+        if user.is_staff:
+            return qs.all()
+        return qs.filter(user=user)
     
     def get_permissions(self):
         if self.action in ['destroy']:
@@ -172,11 +174,12 @@ class CartViewSet(viewsets.ModelViewSet):
     
     def get_queryset(self):
         """Filter carts based on user or session."""
+        qs = super().get_queryset()
         if self.request.user.is_authenticated:
-            return Cart.objects.filter(user=self.request.user)
+            return qs.filter(user=self.request.user)
         if not self.request.session.exists(self.request.session.session_key):
             self.request.session.create()
-        return Cart.objects.filter(cart_code=self.request.session.session_key)
+        return qs.filter(cart_code=self.request.session.session_key)
     
 
 class ReviewViewSet(viewsets.ModelViewSet):
