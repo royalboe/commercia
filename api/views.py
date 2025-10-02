@@ -6,7 +6,7 @@ from rest_framework.permissions import IsAuthenticated, IsAdminUser
 from django_filters.rest_framework import DjangoFilterBackend
 
 from .models import Cart, Category, Order, Product, Review, User, Wishlist
-from .filters import CategoryFilter, ProductFilter
+from .filters import CategoryFilter, ProductFilter, InStockBackend
 from .serializers.cart_serializers import (CartCreateUpdateSerializer,
                                            CartSerializer)
 from .serializers.category_serializers import (CategoryCreateUpdateSerializer,
@@ -87,7 +87,7 @@ class ProductViewSet(viewsets.ModelViewSet):
     """
     queryset = Product.objects.all()
     lookup_field = 'slug'
-    filter_backends = [filters.SearchFilter, filters.OrderingFilter, DjangoFilterBackend]
+    filter_backends = [filters.SearchFilter, filters.OrderingFilter, DjangoFilterBackend, InStockBackend]
     filterset_class = ProductFilter
     search_fields = ['name', 'description']
     ordering_fields = ['name', 'price', 'created_at']

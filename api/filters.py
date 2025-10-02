@@ -1,4 +1,5 @@
 from django_filters import rest_framework as filter
+from rest_framework import filters
 from .models import Product, Category
 
 class ProductFilter(filter.FilterSet):
@@ -43,3 +44,20 @@ class CategoryFilter(filter.FilterSet):
         fields = {
             'name': ['contains', 'exact']
         }
+
+
+class InStockBackend(filters.BaseFilterBackend):
+    """
+    A Django FilterBackend for filtering products based on stock availability.
+    """
+    def filter_queryset(self, request, queryset, view):
+        """
+        Filters the queryset to include only products with stock greater than 0.
+        Args:
+          request (Request): The request object.
+          queryset (QuerySet): The queryset to filter.
+          view (View): The view instance.
+        Returns:
+          QuerySet: The filtered queryset.
+        """
+        return queryset.filter(stock__gt=0)
