@@ -91,6 +91,7 @@ class ProductViewSet(viewsets.ModelViewSet):
     filterset_class = ProductFilter
     search_fields = ['name', 'description']
     ordering_fields = ['name', 'price', 'created_at']
+    ordering = ['-created_at']
 
     def get_serializer_class(self):
         if self.action in ['create', 'update', 'partial_update']:
