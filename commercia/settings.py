@@ -259,6 +259,27 @@ CACHES = {
 print(f"AWS_S3_READY: {AWS_S3_READY}")
 print(f"DEBUG: {DEBUG}")
 print(f"STATICFILES_STORAGE: {STORAGES['staticfiles']['BACKEND']}")
+
+# settings.py
+LOGGING = {
+    "version": 1,
+    "disable_existing_loggers": False,
+    "handlers": {
+        "file": {
+            "level": "ERROR",
+            "class": "logging.FileHandler",
+            "filename": BASE_DIR / "logs/django.log",
+        },
+    },
+    "loggers": {
+        "django": {
+            "handlers": ["file"],
+            "level": "ERROR",
+            "propagate": True,
+        },
+    },
+}
+
 # Security
 # SECURE_BROWSER_XSS_FILTER = True
 # SECURE_CONTENT_TYPE_NOSNIFF = True
