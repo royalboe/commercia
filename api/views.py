@@ -106,7 +106,7 @@ class OrderViewSet(viewsets.ModelViewSet):
         - OrderCreateUpdateSerializer for write operations.
     """
 
-    queryset = Order.objects.all()
+    queryset = Order.objects.select_related('user').prefetch_related('items__product')
     serializer_class = OrderSerializer
     permission_classes = [IsAuthenticated]
 
@@ -153,7 +153,7 @@ class CartViewSet(viewsets.ModelViewSet):
         - CartCreateUpdateSerializer for write operations.
     """
 
-    queryset = Cart.objects.all()
+    queryset = Cart.objects.select_related('user').prefetch_related('items__product')
     serializer_class = CartSerializer
 
     def get_serializer_class(self):
@@ -191,7 +191,7 @@ class ReviewViewSet(viewsets.ModelViewSet):
         - destroy: Remove a review.
     """
 
-    queryset = Review.objects.all()
+    queryset = Review.objects.select_related('user', 'product__category')
     serializer_class = ReviewSerializer
 
     def perform_create(self, serializer):
@@ -216,7 +216,7 @@ class WishlistViewSet(viewsets.ModelViewSet):
         - destroy: Remove a wishlist.
     """
 
-    queryset = Wishlist.objects.all()
+    queryset = Wishlist.objects.select_related('user', 'product__category')
     serializer_class = WishlistSerializer
     permission_classes = [permissions.IsAuthenticated]
 

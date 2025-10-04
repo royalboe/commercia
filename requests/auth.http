@@ -1,0 +1,27 @@
+### AUTH
+
+### Login (Token)
+POST {{host}}/auth/token/login/
+Content-Type: application/json
+
+{
+    "email": "{{email}}",
+    "password": "{{password}}"
+}
+
+### Logout (Token)
+POST {{host}}/auth/token/logout/
+Authorization: Token {{token}}
+
+### Login (JWT)
+POST {{host}}/auth/jwt/create/
+Content-Type: application/json
+
+{
+    "email": "{{email}}",
+    "password": "{{password}}"
+}
+
+### Logout (JWT)
+POST {{host}}/auth/jwt/logout/
+Authorization: Token {{token}}
