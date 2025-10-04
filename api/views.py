@@ -3,6 +3,9 @@ from rest_framework.decorators import action
 from rest_framework.response import Response
 from rest_framework.permissions import IsAuthenticated, IsAdminUser
 
+from django.utils.decorators import method_decorator
+from django.views.decorators.cache import cache_page
+
 from django_filters.rest_framework import DjangoFilterBackend
 
 from .models import Cart, Category, Order, Product, Review, User, Wishlist
@@ -68,6 +71,8 @@ class CategoryViewSet(viewsets.ModelViewSet):
 
     queryset = Category.objects.all()
     lookup_field = 'slug'
+    filter_backends = [DjangoFilterBackend, filters.SearchFilter, filters.OrderingFilter]
+    search_fields = ['name', 'description']
     filterset_class = CategoryFilter
 
     def get_serializer_class(self):
@@ -85,13 +90,18 @@ class ProductViewSet(viewsets.ModelViewSet):
         - list: Retrieve all products.
         - retrieve: Get a specific product by ID.
     """
-    queryset = Product.objects.all()
+    queryset = Product.objects.all().select_related('category').prefetch_related('reviews', 'wishlists')
     lookup_field = 'slug'
     filter_backends = [filters.SearchFilter, filters.OrderingFilter, DjangoFilterBackend, InStockBackend]
     filterset_class = ProductFilter
     search_fields = ['name', 'description']
     ordering_fields = ['name', 'price', 'created_at']
     ordering = ['-created_at']
+    permission_classes = [permissions.AllowAny]
+
+    @method_decorator(cache_page(60 * 5, key_prefix="products_list"))
+    def list(self, request, *args, **kwargs):
+        return super().list(request, *args, **kwargs)
 
     def get_serializer_class(self):
         if self.action in ['create', 'update', 'partial_update']:
@@ -135,7 +145,8 @@ class OrderViewSet(viewsets.ModelViewSet):
     def get_serializer_context(self):
         """Add user to serializer context."""
         if self.request.user.is_authenticated:
-            context = {'user': self.request.user}
+            context = super().get_serializer_context()
+            context['user'] = self.request.user
             return context
         return super().get_serializer_context()
 
