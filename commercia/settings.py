@@ -243,10 +243,12 @@ STATICFILES_DIRS = [
 
 # CACHES
 
+REDIS_LOCATION = env.str("REDIS_LOCATION", default="redis://127.0.0.1:6329/1")
+
 CACHES = {
     "default": {
         "BACKEND": "django_redis.cache.RedisCache",
-        "LOCATION": "redis://127.0.0.1:6380/1",
+        "LOCATION": REDIS_LOCATION,
         "OPTIONS": {
             "CLIENT_CLASS": "django_redis.client.DefaultClient",
 }

@@ -92,7 +92,7 @@ class ProductViewSet(viewsets.ModelViewSet):
         - list: Retrieve all products.
         - retrieve: Get a specific product by ID.
     """
-    queryset = Product.objects.all().select_related('category').prefetch_related('reviews', 'wishlists')
+    queryset = Product.objects.all().prefetch_related('categories', 'reviews', 'wishlists')
     lookup_field = 'slug'
     filter_backends = [filters.SearchFilter, filters.OrderingFilter, DjangoFilterBackend, InStockBackend]
     filterset_class = ProductFilter
