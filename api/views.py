@@ -28,6 +28,8 @@ from .serializers.user_serializers import (UserCreateUpdateSerializer,
                                            UserDetailSerializer,
                                            UserListSerializer)
 
+from .permissions import IsOwnerOrReadOnly
+
 # Create your views here.
 
 class UserViewSet(viewsets.ModelViewSet):
@@ -216,11 +218,16 @@ class ReviewViewSet(viewsets.ModelViewSet):
 
     queryset = Review.objects.select_related('user', 'product__category')
     serializer_class = ReviewSerializer
+    permission_classes = [permissions.IsAuthenticatedOrReadOnly, IsOwnerOrReadOnly]
 
     def perform_create(self, serializer):
+        """Ensure review is tied to logged-in user."""
         if self.request.user.is_authenticated:
             serializer.save(user=self.request.user)
-        return super().perform_create(serializer)
+        else:
+            raise permissions.PermissionDenied("Authentication required to create a review.")
+        
+    
     def get_serializer_class(self):
         """Return appropriate serializer based on action."""
         if self.action in ['create', 'update', 'partial_update']:
