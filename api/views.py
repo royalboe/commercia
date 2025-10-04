@@ -101,9 +101,15 @@ class ProductViewSet(viewsets.ModelViewSet):
     ordering = ['-created_at']
     permission_classes = [permissions.AllowAny]
 
+    # Cache product list for 5 mins
     @method_decorator(cache_page(60 * 5, key_prefix="products_list"))
     def list(self, request, *args, **kwargs):
         return super().list(request, *args, **kwargs)
+    
+    # Cache individual product details for 10 minutes
+    @method_decorator(cache_page(60 * 10, key_prefix="product_detail"))
+    def retrieve(self, request, *args, **kwargs):
+        return super().retrieve(request, *args, **kwargs)
 
     def get_serializer_class(self):
         if self.action in ['create', 'update', 'partial_update']:
