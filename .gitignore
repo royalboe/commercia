@@ -1,0 +1,29 @@
+# Python
+__pycache__/
+*.py[cod]
+*.sqlite3
+*.log
+
+# Virtual env
+.venv/
+.env
+
+# Django
+staticfiles/
+media/
+category_images/
+product_images/
+*.pyc
+local_settings.py
+
+# VSCode
+.vscode/
+
+# Migrations
+*/migrations/__pycache__/
+*/migrations/*.py
+
+# Idea
+.idea
+
+http-client.env.json

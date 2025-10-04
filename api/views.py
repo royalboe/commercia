@@ -1,0 +1,271 @@
+from rest_framework import permissions, viewsets, filters
+from rest_framework.decorators import action
+from rest_framework.response import Response
+from rest_framework.permissions import IsAuthenticated, IsAdminUser
+
+from django.utils.decorators import method_decorator
+from django.views.decorators.cache import cache_page
+
+from django_filters.rest_framework import DjangoFilterBackend
+
+from .models import Cart, Category, Order, Product, Review, User, Wishlist
+from .filters import CategoryFilter, ProductFilter, InStockBackend
+from .serializers.cart_serializers import (CartCreateUpdateSerializer,
+                                           CartSerializer)
+from .serializers.category_serializers import (CategoryCreateUpdateSerializer,
+                                               CategoryDetailSerializer,
+                                               CategoryListSerializer)
+from .serializers.order_serializers import (OrderCreateSerializer,
+                                            OrderSerializer)
+from .serializers.product_serializers import (ProductCreateUpdateSerializer,
+                                              ProductDetailSerializer,
+                                              ProductListSerializer,
+                                              WishlistCreateUpdateSerializer,
+                                              WishlistSerializer)
+from .serializers.review_serializers import (ReviewCreateSerializer,
+                                             ReviewSerializer)
+from .serializers.user_serializers import (UserCreateUpdateSerializer,
+                                           UserDetailSerializer,
+                                           UserListSerializer)
+
+from .permissions import IsOwnerOrReadOnly
+
+# Create your views here.
+
+class UserViewSet(viewsets.ModelViewSet):
+    """
+    ViewSet for managing users.
+
+    Provides:
+        - list: Retrieve all users.
+        - retrieve: Get a specific user by ID.
+        - create: Add a new user.
+        - update: Modify an existing user.
+        - destroy: Remove a user.
+    Uses:
+        - UserSerializer for read operations.
+        - UserCreateUpdateSerializer for write operations.
+    """
+
+    queryset = User.objects.all()
+    serializer_class = UserListSerializer
+
+    def get_serializer_class(self):
+        """Return appropriate serializer based on action."""
+        if self.action in ['create', 'update', 'partial_update']:
+            return UserCreateUpdateSerializer
+        elif self.action == 'retrieve':
+            return UserDetailSerializer
+        return super().get_serializer_class()
+
+class CategoryViewSet(viewsets.ModelViewSet):
+    """
+    ViewSet for managing categories.
+
+    Provides:
+        - list: Retrieve all categories.
+        - retrieve: Get a specific category by ID.
+        - create: Add a new category.
+        - update: Modify an existing category.
+        - destroy: Remove a category.
+    """
+    
+
+    queryset = Category.objects.all()
+    lookup_field = 'slug'
+    filter_backends = [DjangoFilterBackend, filters.SearchFilter, filters.OrderingFilter]
+    search_fields = ['name', 'description']
+    filterset_class = CategoryFilter
+
+    def get_serializer_class(self):
+        if self.action in ['create', 'update', 'partial_update']:
+            return CategoryCreateUpdateSerializer
+        elif self.action == 'retrieve':
+            return CategoryDetailSerializer
+        return CategoryListSerializer
+
+class ProductViewSet(viewsets.ModelViewSet):
+    """
+    Read-only ViewSet for products.
+
+    Provides:
+        - list: Retrieve all products.
+        - retrieve: Get a specific product by ID.
+    """
+    queryset = Product.objects.all().prefetch_related('categories', 'reviews', 'wishlists')
+    lookup_field = 'slug'
+    filter_backends = [filters.SearchFilter, filters.OrderingFilter, DjangoFilterBackend, InStockBackend]
+    filterset_class = ProductFilter
+    search_fields = ['name', 'description']
+    ordering_fields = ['name', 'price', 'created_at']
+    ordering = ['-created_at']
+    permission_classes = [permissions.AllowAny]
+
+    # Cache product list for 5 mins
+    @method_decorator(cache_page(60 * 5, key_prefix="products_list"))
+    def list(self, request, *args, **kwargs):
+        return super().list(request, *args, **kwargs)
+    
+    # Cache individual product details for 10 minutes
+    @method_decorator(cache_page(60 * 10, key_prefix="product_detail"))
+    def retrieve(self, request, *args, **kwargs):
+        return super().retrieve(request, *args, **kwargs)
+
+    def get_serializer_class(self):
+        if self.action in ['create', 'update', 'partial_update']:
+            return ProductCreateUpdateSerializer
+        elif self.action == 'retrieve':
+            return ProductDetailSerializer
+        return ProductListSerializer
+    
+class OrderViewSet(viewsets.ModelViewSet):
+    """
+    ViewSet for managing orders.
+
+    Provides:
+        - list: Retrieve all orders.
+        - retrieve: Get a specific order by ID.
+        - create: Add a new order.
+        - update: Modify an existing order.
+        - destroy: Remove an order.
+    Uses:
+        - OrderSerializer for read operations.
+        - OrderCreateUpdateSerializer for write operations.
+    """
+
+    queryset = Order.objects.select_related('user').prefetch_related('items__product')
+    serializer_class = OrderSerializer
+    permission_classes = [IsAuthenticated]
+
+    def get_queryset(self):
+        """Filter orders based on user or admin."""
+        qs = super().get_queryset()
+        user = self.request.user
+        if user.is_staff:
+            return qs.all()
+        return qs.filter(user=user)
+    
+    def get_permissions(self):
+        if self.action in ['destroy']:
+            self.permission_classes = [IsAdminUser]
+        return super().get_permissions()
+    
+    def get_serializer_context(self):
+        """Add user to serializer context."""
+        if self.request.user.is_authenticated:
+            context = super().get_serializer_context()
+            context['user'] = self.request.user
+            return context
+        return super().get_serializer_context()
+
+    def get_serializer_class(self):
+        """Return appropriate serializer based on action."""
+        if self.action in ['create', 'update', 'partial_update']:
+            return OrderCreateSerializer
+        return super().get_serializer_class()
+    
+    def perform_create(self, serializer):
+        if self.request.user.is_authenticated:
+            serializer.save(user=self.request.user)
+
+class CartViewSet(viewsets.ModelViewSet):
+    """
+    ViewSet for managing carts.
+
+    Provides:
+        - list: Retrieve all carts.
+        - retrieve: Get a specific cart by ID.
+        - create: Add a new cart.
+        - update: Modify an existing cart.
+        - destroy: Remove a cart.
+    Uses:
+        - CartSerializer for read operations.
+        - CartCreateUpdateSerializer for write operations.
+    """
+
+    queryset = Cart.objects.select_related('user').prefetch_related('items__product')
+    serializer_class = CartSerializer
+
+    def get_serializer_class(self):
+        """Allow switching serializer if needed"""
+        if self.action in ['create', 'update', 'partial_update']:
+            return CartCreateUpdateSerializer
+        return super().get_serializer_class()
+
+    def perform_create(self, serializer):
+        if self.request.user.is_authenticated:
+            serializer.save(user=self.request.user)
+        else:
+            if not self.request.session.exists(self.request.session.session_key):
+                self.request.session.create()
+            serializer.save(cart_code=self.request.session.session_key)
+    
+    def get_queryset(self):
+        """Filter carts based on user or session."""
+        qs = super().get_queryset()
+        if self.request.user.is_authenticated:
+            return qs.filter(user=self.request.user)
+        if not self.request.session.exists(self.request.session.session_key):
+            self.request.session.create()
+        return qs.filter(cart_code=self.request.session.session_key)
+    
+
+class ReviewViewSet(viewsets.ModelViewSet):
+    """
+    ViewSet for managing reviews.
+
+    Provides:
+        - list: Retrieve all reviews.
+        - retrieve: Get a specific review by ID.
+        - create: Add a new review.
+        - update: Modify an existing review.
+        - destroy: Remove a review.
+    """
+
+    queryset = Review.objects.select_related('user', 'product__category')
+    serializer_class = ReviewSerializer
+    permission_classes = [permissions.IsAuthenticatedOrReadOnly, IsOwnerOrReadOnly]
+
+    def perform_create(self, serializer):
+        """Ensure review is tied to logged-in user."""
+        if self.request.user.is_authenticated:
+            serializer.save(user=self.request.user)
+        else:
+            raise permissions.PermissionDenied("Authentication required to create a review.")
+        
+    
+    def get_serializer_class(self):
+        """Return appropriate serializer based on action."""
+        if self.action in ['create', 'update', 'partial_update']:
+            return ReviewCreateSerializer
+        return super().get_serializer_class()
+
+class WishlistViewSet(viewsets.ModelViewSet):
+    """
+    ViewSet for managing wishlists.
+
+    Provides:
+        - list: Retrieve all wishlists.
+        - retrieve: Get a specific wishlist by ID.
+        - create: Add a new wishlist.
+        - update: Modify an existing wishlist.
+        - destroy: Remove a wishlist.
+    """
+
+    queryset = Wishlist.objects.select_related('user', 'product__category')
+    serializer_class = WishlistSerializer
+    permission_classes = [permissions.IsAuthenticated]
+
+    def get_queryset(self):
+        # User can only see their wishlist
+        return Wishlist.objects.filter(user=self.request.user)
+
+    def perform_create(self, serializer):
+        # Ensure wishlist is tied to logged-in user
+        serializer.save(user=self.request.user)
+
+    def get_serializer_class(self):
+        """Return appropriate serializer based on action."""
+        if self.action in ['create', 'update', 'partial_update']:
+            return WishlistCreateUpdateSerializer
+        return super().get_serializer_class()

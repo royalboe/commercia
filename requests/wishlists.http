@@ -1,0 +1,14 @@
+### WISHLISTS
+
+### List Wishlists
+GET {{host}}/api/wishlists/
+Authorization: Token {{token}}
+
+### Add to Wishlist
+POST {{host}}/api/wishlists/
+Authorization: Token {{token}}
+Content-Type: application/json
+
+{
+    "product": "electric-iron"
+}
