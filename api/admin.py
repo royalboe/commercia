@@ -1,27 +1,6 @@
 from django.contrib import admin
 from django.contrib.auth.admin import UserAdmin as BaseUserAdmin
-from .models import User, Category, Product, Order, OrderItem
-
-
-class UserAdmin(BaseUserAdmin):
-    """Custom admin for User model with email as username field."""
-    fieldsets = (
-        (None, {"fields": ("email", "password")}),
-        ("Personal info", {"fields": ("username", "first_name", "last_name", "phone_number", "address", "date_of_birth")}),
-        ("Permissions", {"fields": ("is_active", "is_staff", "is_superuser", "groups", "user_permissions")}),
-        ("Important dates", {"fields": ("last_login", "date_joined")}),
-        ("Role", {"fields": ("role",)}),
-    )
-    add_fieldsets = (
-        (None, {
-            "classes": ("wide",),
-            "fields": ("email", "username", "password1", "password2", "role"),
-        }),
-    )
-    list_display = ("email", "username", "role", "is_staff", "is_active")
-    search_fields = ("email", "username")
-    ordering = ("email",)
-
+from .models import Category, Product, Order, OrderItem
 
 # class OrderItemInline(admin.TabularInline):
 #     """Inline admin for adding/editing OrderItems within an Order."""
@@ -45,9 +24,6 @@ class UserAdmin(BaseUserAdmin):
 #     # search_fields = ("order_id", "user__email")
 #     # readonly_fields = ("total_amount", "created_at", "updated_at")
 #     inlines = [OrderItemInline]
-
-from django.contrib import admin
-from .models import Order, OrderItem
 
 
 class OrderItemInline(admin.TabularInline):
@@ -96,7 +72,7 @@ class CategoryAdmin(admin.ModelAdmin):
 
 
 # Register models
-admin.site.register(User, UserAdmin)
+
 admin.site.register(Product, ProductAdmin)
 admin.site.register(Category, CategoryAdmin)
 admin.site.register(Order, OrderAdmin)
