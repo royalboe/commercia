@@ -8,7 +8,7 @@ from django.views.decorators.cache import cache_page
 
 from django_filters.rest_framework import DjangoFilterBackend
 
-from .models import Cart, Category, Order, Product, Review, User, Wishlist
+from .models import Cart, Category, Order, Product, Review, Wishlist
 from .filters import CategoryFilter, ProductFilter, InStockBackend
 from .serializers.cart_serializers import (CartCreateUpdateSerializer,
                                            CartSerializer)
@@ -24,39 +24,10 @@ from .serializers.product_serializers import (ProductCreateUpdateSerializer,
                                               WishlistSerializer)
 from .serializers.review_serializers import (ReviewCreateSerializer,
                                              ReviewSerializer)
-from .serializers.user_serializers import (UserCreateUpdateSerializer,
-                                           UserDetailSerializer,
-                                           UserListSerializer)
 
 from .permissions import IsOwnerOrReadOnly
 
 # Create your views here.
-
-class UserViewSet(viewsets.ModelViewSet):
-    """
-    ViewSet for managing users.
-
-    Provides:
-        - list: Retrieve all users.
-        - retrieve: Get a specific user by ID.
-        - create: Add a new user.
-        - update: Modify an existing user.
-        - destroy: Remove a user.
-    Uses:
-        - UserSerializer for read operations.
-        - UserCreateUpdateSerializer for write operations.
-    """
-
-    queryset = User.objects.all()
-    serializer_class = UserListSerializer
-
-    def get_serializer_class(self):
-        """Return appropriate serializer based on action."""
-        if self.action in ['create', 'update', 'partial_update']:
-            return UserCreateUpdateSerializer
-        elif self.action == 'retrieve':
-            return UserDetailSerializer
-        return super().get_serializer_class()
 
 class CategoryViewSet(viewsets.ModelViewSet):
     """
