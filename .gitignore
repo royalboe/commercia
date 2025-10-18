@@ -10,6 +10,7 @@ __pycache__/
 
 # Django
 staticfiles/
+static
 media/
 category_images/
 product_images/
