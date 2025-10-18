@@ -197,7 +197,6 @@ SPECTACULAR_SETTINGS = {
 }
 
 # S3 Configuration
-
 AWS_ACCESS_KEY_ID = env.str("AWS_ACCESS_KEY_ID")
 AWS_SECRET_ACCESS_KEY = env.str("AWS_SECRET_ACCESS_KEY")
 AWS_STORAGE_BUCKET_NAME = env.str("AWS_STORAGE_BUCKET_NAME")
@@ -219,7 +218,7 @@ STORAGES = {
         "BACKEND": "api.storage_backends.StaticStorage",
     },
 }
-if AWS_S3_READY:
+if AWS_S3_READY and not DEBUG:
     # S3 Custom Endpoint
     AWS_S3_CUSTOM_DOMAIN = f"{AWS_STORAGE_BUCKET_NAME}.s3.amazonaws.com"
 
