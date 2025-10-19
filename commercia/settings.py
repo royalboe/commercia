@@ -218,7 +218,7 @@ STORAGES = {
         "BACKEND": "api.storage_backends.StaticStorage",
     },
 }
-if AWS_S3_READY:
+if AWS_S3_READY and not DEBUG:
     # S3 Custom Endpoint
     AWS_S3_CUSTOM_DOMAIN = f"{AWS_STORAGE_BUCKET_NAME}.s3.amazonaws.com"
 
@@ -255,11 +255,6 @@ CACHES = {
 }
     }
 }
-
-
-print(f"AWS_S3_READY: {AWS_S3_READY}")
-print(f"DEBUG: {DEBUG}")
-print(f"STATICFILES_STORAGE: {STORAGES['staticfiles']['BACKEND']}")
 
 # settings.py
 # LOGGING = {
