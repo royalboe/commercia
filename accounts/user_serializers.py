@@ -2,7 +2,7 @@ from rest_framework import serializers
 from django.db import transaction
 from django.contrib.auth.hashers import make_password
 
-from api.models import User
+from accounts.models import User
 
 class UserListSerializer(serializers.ModelSerializer):
     """
