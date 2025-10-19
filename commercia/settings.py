@@ -193,6 +193,7 @@ SPECTACULAR_SETTINGS = {
     'DESCRIPTION': 'This is the backend API for Commercia E-Commerce backend Application',
     'VERSION': '1.0.0',
     'SERVE_INCLUDE_SCHEMA': False,
+    'SERVE_STATIC': env.bool('DEBUG', default=True),
     # OTHER SETTINGS
 }
 
