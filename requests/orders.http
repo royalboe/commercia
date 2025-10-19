@@ -1,14 +1,21 @@
 ### ORDERS
 
 ### List Orders
-GET {{host}}/api/orders/
+GET {{host}}/api/orders/ HTTP/1.1
 Authorization: Token {{token}}
 
 ### Get Order with Cart ID
-GET {{host}}/api/orders/
+GET {{host}}/api/orders/ HTTP/1.1
 Content-Type: application/json
 Authorization: Token {{token}}
 
 {
-    "cart_id": "f79730ec-a786-4d55-bb04-97e2204f2279"
+    "cart_id": "7dc7fc7a-b2b4-48c1-8728-d986e437fc0d"
 }
+
+
+### Create Order
+POST {{host}}/api/orders/
+Content-Type: application/json
+Authorization: Token {{token}}
+

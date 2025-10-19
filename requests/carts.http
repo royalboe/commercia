@@ -5,7 +5,7 @@ GET {{host}}/api/carts/
 Authorization: Token {{token}}
 
 ### Get Cart by ID
-GET {{host}}/api/carts/1fcf9c54-54b7-4c03-a93f-370203e04f6b/
+GET {{host}}/api/carts/7dc7fc7a-b2b4-48c1-8728-d986e437fc0d/
 
 ### Create Cart
 POST {{host}}/api/carts/
@@ -21,6 +21,23 @@ Authorization: Token {{token}}
         },
         {
             "product": "ccebb85c-514e-4b91-9527-6a10836e9e06",
+            "quantity": "2"
+        }
+    ]
+}
+
+### Create Cart UnAuthenticated
+POST {{host}}/api/carts/
+Content-Type: application/json
+
+{
+    "items": [
+        {
+            "product": "antique-ait-conditional",
+            "quantity": "6"
+        },
+        {
+            "product": "mobile-phone",
             "quantity": "2"
         }
     ]
