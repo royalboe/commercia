@@ -7,3 +7,18 @@ Authorization: Token {{token}}
 ### Get Current User
 GET {{host}}/auth/users/me/
 Authorization: Token {{token}}
+
+### Create User
+POST {{host}}/api/users/
+Content-Type: application/json
+
+{
+    "email": "testuser5@test.com",
+    "password": "TestPassword123",
+    "username": "testuser5",
+    "first_name": "Test",
+    "last_name": "User",
+    "is_staff": false,
+    "is_active": true,
+    "role": "customer"
+}

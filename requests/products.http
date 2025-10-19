@@ -10,7 +10,7 @@ GET {{host}}/api/products?search=fan HTTP/1.1
 GET {{host}}/api/products?name__iexact=fan HTTP/1.1
 
 
-### Checking for proce
+### Checking for price
 GET {{host}}/api/products?min_price=300
 
 ### Ordering by price
@@ -22,7 +22,9 @@ Content-Type: application/json
 Authorization: Token {{token}}
 
 {
-    "name": "Electric Iron",
-    "price": 50.67,
-    "stock": 50
+    "name": "Pressing Iron",
+    "price": 59,
+    "stock": 50,
+    "description": "A high-quality electric iron for smooth and wrinkle-free clothes.",
+    "categories": ["613e8b24-90fd-4e40-bc3e-f747318d280f"]
 }

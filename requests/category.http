@@ -1,3 +1,14 @@
 ### CATEGORIES
 
 GET {{host}}/api/categories/
+
+
+### Create Category
+POST {{host}}/api/categories/
+Content-Type: application/json
+Authorization: Token {{token}}
+
+{
+    "name": "Home Appliances",
+    "description": "Various home appliances including kitchen and cleaning devices."
+}
