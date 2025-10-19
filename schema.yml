@@ -19,6 +19,19 @@ paths:
         Uses:
             - CartSerializer for read operations.
             - CartCreateUpdateSerializer for write operations.
+      parameters:
+      - name: page
+        required: false
+        in: query
+        description: A page number within the paginated result set.
+        schema:
+          type: integer
+      - name: page_size
+        required: false
+        in: query
+        description: Number of results to return per page.
+        schema:
+          type: integer
       tags:
       - api
       security:
@@ -30,9 +43,7 @@ paths:
           content:
             application/json:
               schema:
-                type: array
-                items:
-                  $ref: '#/components/schemas/Cart'
+                $ref: '#/components/schemas/PaginatedCartList'
           description: ''
     post:
       operationId: api_carts_create
@@ -245,6 +256,39 @@ paths:
             - create: Add a new category.
             - update: Modify an existing category.
             - destroy: Remove a category.
+      parameters:
+      - in: query
+        name: name
+        schema:
+          type: string
+      - in: query
+        name: name__contains
+        schema:
+          type: string
+      - name: ordering
+        required: false
+        in: query
+        description: Which field to use when ordering the results.
+        schema:
+          type: string
+      - name: page
+        required: false
+        in: query
+        description: A page number within the paginated result set.
+        schema:
+          type: integer
+      - name: page_size
+        required: false
+        in: query
+        description: Number of results to return per page.
+        schema:
+          type: integer
+      - name: search
+        required: false
+        in: query
+        description: A search term.
+        schema:
+          type: string
       tags:
       - api
       security:
@@ -256,9 +300,7 @@ paths:
           content:
             application/json:
               schema:
-                type: array
-                items:
-                  $ref: '#/components/schemas/CategoryList'
+                $ref: '#/components/schemas/PaginatedCategoryListList'
           description: ''
     post:
       operationId: api_categories_create
@@ -451,6 +493,19 @@ paths:
         Uses:
             - OrderSerializer for read operations.
             - OrderCreateUpdateSerializer for write operations.
+      parameters:
+      - name: page
+        required: false
+        in: query
+        description: A page number within the paginated result set.
+        schema:
+          type: integer
+      - name: page_size
+        required: false
+        in: query
+        description: Number of results to return per page.
+        schema:
+          type: integer
       tags:
       - api
       security:
@@ -461,9 +516,7 @@ paths:
           content:
             application/json:
               schema:
-                type: array
-                items:
-                  $ref: '#/components/schemas/Order'
+                $ref: '#/components/schemas/PaginatedOrderList'
           description: ''
     post:
       operationId: api_orders_create
@@ -668,6 +721,94 @@ paths:
         Provides:
             - list: Retrieve all products.
             - retrieve: Get a specific product by ID.
+      parameters:
+      - in: query
+        name: categories
+        schema:
+          type: array
+          items:
+            type: string
+            format: uuid
+        explode: true
+        style: form
+      - in: query
+        name: categories__contains
+        schema:
+          type: array
+          items:
+            type: string
+            format: uuid
+        explode: true
+        style: form
+      - in: query
+        name: max_price
+        schema:
+          type: number
+      - in: query
+        name: min_price
+        schema:
+          type: number
+      - in: query
+        name: name__icontains
+        schema:
+          type: string
+      - in: query
+        name: name__iexact
+        schema:
+          type: string
+      - name: ordering
+        required: false
+        in: query
+        description: Which field to use when ordering the results.
+        schema:
+          type: string
+      - name: page
+        required: false
+        in: query
+        description: A page number within the paginated result set.
+        schema:
+          type: integer
+      - name: page_size
+        required: false
+        in: query
+        description: Number of results to return per page.
+        schema:
+          type: integer
+      - in: query
+        name: price
+        schema:
+          type: number
+      - in: query
+        name: price__gt
+        schema:
+          type: number
+      - in: query
+        name: price__gte
+        schema:
+          type: number
+      - in: query
+        name: price__lt
+        schema:
+          type: number
+      - in: query
+        name: price__lte
+        schema:
+          type: number
+      - in: query
+        name: price__range
+        schema:
+          type: array
+          items:
+            type: number
+        description: Multiple values may be separated by commas.
+        explode: false
+        style: form
+      - name: search
+        required: false
+        in: query
+        description: A search term.
+        schema:
+          type: string
       tags:
       - api
       security:
@@ -679,9 +820,7 @@ paths:
           content:
             application/json:
               schema:
-                type: array
-                items:
-                  $ref: '#/components/schemas/ProductList'
+                $ref: '#/components/schemas/PaginatedProductListList'
           description: ''
     post:
       operationId: api_products_create
@@ -856,6 +995,19 @@ paths:
             - create: Add a new review.
             - update: Modify an existing review.
             - destroy: Remove a review.
+      parameters:
+      - name: page
+        required: false
+        in: query
+        description: A page number within the paginated result set.
+        schema:
+          type: integer
+      - name: page_size
+        required: false
+        in: query
+        description: Number of results to return per page.
+        schema:
+          type: integer
       tags:
       - api
       security:
@@ -867,9 +1019,7 @@ paths:
           content:
             application/json:
               schema:
-                type: array
-                items:
-                  $ref: '#/components/schemas/Review'
+                $ref: '#/components/schemas/PaginatedReviewList'
           description: ''
     post:
       operationId: api_reviews_create
@@ -899,7 +1049,6 @@ paths:
       security:
       - tokenAuth: []
       - cookieAuth: []
-      - {}
       responses:
         '201':
           content:
@@ -976,7 +1125,6 @@ paths:
       security:
       - tokenAuth: []
       - cookieAuth: []
-      - {}
       responses:
         '200':
           content:
@@ -1019,7 +1167,6 @@ paths:
       security:
       - tokenAuth: []
       - cookieAuth: []
-      - {}
       responses:
         '200':
           content:
@@ -1051,236 +1198,6 @@ paths:
       security:
       - tokenAuth: []
       - cookieAuth: []
-      - {}
-      responses:
-        '204':
-          description: No response body
-  /api/users/:
-    get:
-      operationId: api_users_list
-      description: |-
-        ViewSet for managing users.
-
-        Provides:
-            - list: Retrieve all users.
-            - retrieve: Get a specific user by ID.
-            - create: Add a new user.
-            - update: Modify an existing user.
-            - destroy: Remove a user.
-        Uses:
-            - UserSerializer for read operations.
-            - UserCreateUpdateSerializer for write operations.
-      tags:
-      - api
-      security:
-      - tokenAuth: []
-      - cookieAuth: []
-      - {}
-      responses:
-        '200':
-          content:
-            application/json:
-              schema:
-                type: array
-                items:
-                  $ref: '#/components/schemas/UserList'
-          description: ''
-    post:
-      operationId: api_users_create
-      description: |-
-        ViewSet for managing users.
-
-        Provides:
-            - list: Retrieve all users.
-            - retrieve: Get a specific user by ID.
-            - create: Add a new user.
-            - update: Modify an existing user.
-            - destroy: Remove a user.
-        Uses:
-            - UserSerializer for read operations.
-            - UserCreateUpdateSerializer for write operations.
-      tags:
-      - api
-      requestBody:
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/UserCreateUpdate'
-          application/x-www-form-urlencoded:
-            schema:
-              $ref: '#/components/schemas/UserCreateUpdate'
-          multipart/form-data:
-            schema:
-              $ref: '#/components/schemas/UserCreateUpdate'
-        required: true
-      security:
-      - tokenAuth: []
-      - cookieAuth: []
-      - {}
-      responses:
-        '201':
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/UserCreateUpdate'
-          description: ''
-  /api/users/{user_id}/:
-    get:
-      operationId: api_users_retrieve
-      description: |-
-        ViewSet for managing users.
-
-        Provides:
-            - list: Retrieve all users.
-            - retrieve: Get a specific user by ID.
-            - create: Add a new user.
-            - update: Modify an existing user.
-            - destroy: Remove a user.
-        Uses:
-            - UserSerializer for read operations.
-            - UserCreateUpdateSerializer for write operations.
-      parameters:
-      - in: path
-        name: user_id
-        schema:
-          type: string
-          format: uuid
-        description: A UUID string identifying this User.
-        required: true
-      tags:
-      - api
-      security:
-      - tokenAuth: []
-      - cookieAuth: []
-      - {}
-      responses:
-        '200':
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/UserDetail'
-          description: ''
-    put:
-      operationId: api_users_update
-      description: |-
-        ViewSet for managing users.
-
-        Provides:
-            - list: Retrieve all users.
-            - retrieve: Get a specific user by ID.
-            - create: Add a new user.
-            - update: Modify an existing user.
-            - destroy: Remove a user.
-        Uses:
-            - UserSerializer for read operations.
-            - UserCreateUpdateSerializer for write operations.
-      parameters:
-      - in: path
-        name: user_id
-        schema:
-          type: string
-          format: uuid
-        description: A UUID string identifying this User.
-        required: true
-      tags:
-      - api
-      requestBody:
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/UserCreateUpdate'
-          application/x-www-form-urlencoded:
-            schema:
-              $ref: '#/components/schemas/UserCreateUpdate'
-          multipart/form-data:
-            schema:
-              $ref: '#/components/schemas/UserCreateUpdate'
-        required: true
-      security:
-      - tokenAuth: []
-      - cookieAuth: []
-      - {}
-      responses:
-        '200':
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/UserCreateUpdate'
-          description: ''
-    patch:
-      operationId: api_users_partial_update
-      description: |-
-        ViewSet for managing users.
-
-        Provides:
-            - list: Retrieve all users.
-            - retrieve: Get a specific user by ID.
-            - create: Add a new user.
-            - update: Modify an existing user.
-            - destroy: Remove a user.
-        Uses:
-            - UserSerializer for read operations.
-            - UserCreateUpdateSerializer for write operations.
-      parameters:
-      - in: path
-        name: user_id
-        schema:
-          type: string
-          format: uuid
-        description: A UUID string identifying this User.
-        required: true
-      tags:
-      - api
-      requestBody:
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/PatchedUserCreateUpdate'
-          application/x-www-form-urlencoded:
-            schema:
-              $ref: '#/components/schemas/PatchedUserCreateUpdate'
-          multipart/form-data:
-            schema:
-              $ref: '#/components/schemas/PatchedUserCreateUpdate'
-      security:
-      - tokenAuth: []
-      - cookieAuth: []
-      - {}
-      responses:
-        '200':
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/UserCreateUpdate'
-          description: ''
-    delete:
-      operationId: api_users_destroy
-      description: |-
-        ViewSet for managing users.
-
-        Provides:
-            - list: Retrieve all users.
-            - retrieve: Get a specific user by ID.
-            - create: Add a new user.
-            - update: Modify an existing user.
-            - destroy: Remove a user.
-        Uses:
-            - UserSerializer for read operations.
-            - UserCreateUpdateSerializer for write operations.
-      parameters:
-      - in: path
-        name: user_id
-        schema:
-          type: string
-          format: uuid
-        description: A UUID string identifying this User.
-        required: true
-      tags:
-      - api
-      security:
-      - tokenAuth: []
-      - cookieAuth: []
-      - {}
       responses:
         '204':
           description: No response body
@@ -1296,6 +1213,19 @@ paths:
             - create: Add a new wishlist.
             - update: Modify an existing wishlist.
             - destroy: Remove a wishlist.
+      parameters:
+      - name: page
+        required: false
+        in: query
+        description: A page number within the paginated result set.
+        schema:
+          type: integer
+      - name: page_size
+        required: false
+        in: query
+        description: Number of results to return per page.
+        schema:
+          type: integer
       tags:
       - api
       security:
@@ -1306,9 +1236,7 @@ paths:
           content:
             application/json:
               schema:
-                type: array
-                items:
-                  $ref: '#/components/schemas/Wishlist'
+                $ref: '#/components/schemas/PaginatedWishlistList'
           description: ''
     post:
       operationId: api_wishlists_create
@@ -1613,6 +1541,19 @@ paths:
   /auth/users/:
     get:
       operationId: auth_users_list
+      parameters:
+      - name: page
+        required: false
+        in: query
+        description: A page number within the paginated result set.
+        schema:
+          type: integer
+      - name: page_size
+        required: false
+        in: query
+        description: Number of results to return per page.
+        schema:
+          type: integer
       tags:
       - auth
       security:
@@ -1623,9 +1564,7 @@ paths:
           content:
             application/json:
               schema:
-                type: array
-                items:
-                  $ref: '#/components/schemas/User'
+                $ref: '#/components/schemas/PaginatedUserList'
           description: ''
     post:
       operationId: auth_users_create
@@ -2432,6 +2371,167 @@ components:
           minimum: 0
       required:
       - product
+    PaginatedCartList:
+      type: object
+      required:
+      - count
+      - results
+      properties:
+        count:
+          type: integer
+          example: 123
+        next:
+          type: string
+          nullable: true
+          format: uri
+          example: http://api.example.org/accounts/?page=4
+        previous:
+          type: string
+          nullable: true
+          format: uri
+          example: http://api.example.org/accounts/?page=2
+        results:
+          type: array
+          items:
+            $ref: '#/components/schemas/Cart'
+    PaginatedCategoryListList:
+      type: object
+      required:
+      - count
+      - results
+      properties:
+        count:
+          type: integer
+          example: 123
+        next:
+          type: string
+          nullable: true
+          format: uri
+          example: http://api.example.org/accounts/?page=4
+        previous:
+          type: string
+          nullable: true
+          format: uri
+          example: http://api.example.org/accounts/?page=2
+        results:
+          type: array
+          items:
+            $ref: '#/components/schemas/CategoryList'
+    PaginatedOrderList:
+      type: object
+      required:
+      - count
+      - results
+      properties:
+        count:
+          type: integer
+          example: 123
+        next:
+          type: string
+          nullable: true
+          format: uri
+          example: http://api.example.org/accounts/?page=4
+        previous:
+          type: string
+          nullable: true
+          format: uri
+          example: http://api.example.org/accounts/?page=2
+        results:
+          type: array
+          items:
+            $ref: '#/components/schemas/Order'
+    PaginatedProductListList:
+      type: object
+      required:
+      - count
+      - results
+      properties:
+        count:
+          type: integer
+          example: 123
+        next:
+          type: string
+          nullable: true
+          format: uri
+          example: http://api.example.org/accounts/?page=4
+        previous:
+          type: string
+          nullable: true
+          format: uri
+          example: http://api.example.org/accounts/?page=2
+        results:
+          type: array
+          items:
+            $ref: '#/components/schemas/ProductList'
+    PaginatedReviewList:
+      type: object
+      required:
+      - count
+      - results
+      properties:
+        count:
+          type: integer
+          example: 123
+        next:
+          type: string
+          nullable: true
+          format: uri
+          example: http://api.example.org/accounts/?page=4
+        previous:
+          type: string
+          nullable: true
+          format: uri
+          example: http://api.example.org/accounts/?page=2
+        results:
+          type: array
+          items:
+            $ref: '#/components/schemas/Review'
+    PaginatedUserList:
+      type: object
+      required:
+      - count
+      - results
+      properties:
+        count:
+          type: integer
+          example: 123
+        next:
+          type: string
+          nullable: true
+          format: uri
+          example: http://api.example.org/accounts/?page=4
+        previous:
+          type: string
+          nullable: true
+          format: uri
+          example: http://api.example.org/accounts/?page=2
+        results:
+          type: array
+          items:
+            $ref: '#/components/schemas/User'
+    PaginatedWishlistList:
+      type: object
+      required:
+      - count
+      - results
+      properties:
+        count:
+          type: integer
+          example: 123
+        next:
+          type: string
+          nullable: true
+          format: uri
+          example: http://api.example.org/accounts/?page=4
+        previous:
+          type: string
+          nullable: true
+          format: uri
+          example: http://api.example.org/accounts/?page=2
+        results:
+          type: array
+          items:
+            $ref: '#/components/schemas/Wishlist'
     PasswordResetConfirm:
       type: object
       properties:
@@ -2591,53 +2691,6 @@ components:
           type: string
           format: email
           readOnly: true
-    PatchedUserCreateUpdate:
-      type: object
-      description: |-
-        Write serializer for creating or updating User.
-
-        Special behavior:
-            - Password is write-only and is automatically hashed before saving.
-
-        Fields:
-            email (EmailField): Required, unique identifier for login.
-            username (CharField): Optional username.
-            password (CharField, write-only): User's password (hashed before saving).
-            role (CharField): User role (customer/admin).
-            phone_number (CharField): Optional contact number.
-            address (TextField): Optional address.
-            date_of_birth (DateField): Optional date of birth.
-      properties:
-        email:
-          type: string
-          format: email
-          maxLength: 254
-        username:
-          type: string
-          nullable: true
-          maxLength: 150
-        password:
-          type: string
-          writeOnly: true
-        first_name:
-          type: string
-          maxLength: 150
-        last_name:
-          type: string
-          maxLength: 150
-        role:
-          $ref: '#/components/schemas/RoleEnum'
-        phone_number:
-          type: string
-          nullable: true
-          maxLength: 15
-        address:
-          type: string
-          nullable: true
-        date_of_birth:
-          type: string
-          format: date
-          nullable: true
     PatchedWishlistCreateUpdate:
       type: object
       description: |-
@@ -2883,14 +2936,6 @@ components:
       - comment
       - product
       - rating
-    RoleEnum:
-      enum:
-      - customer
-      - admin
-      type: string
-      description: |-
-        * `customer` - Customer
-        * `admin` - Admin
     SendEmailReset:
       type: object
       properties:
@@ -3023,177 +3068,6 @@ components:
       required:
       - email
       - password
-      - user_id
-    UserCreateUpdate:
-      type: object
-      description: |-
-        Write serializer for creating or updating User.
-
-        Special behavior:
-            - Password is write-only and is automatically hashed before saving.
-
-        Fields:
-            email (EmailField): Required, unique identifier for login.
-            username (CharField): Optional username.
-            password (CharField, write-only): User's password (hashed before saving).
-            role (CharField): User role (customer/admin).
-            phone_number (CharField): Optional contact number.
-            address (TextField): Optional address.
-            date_of_birth (DateField): Optional date of birth.
-      properties:
-        email:
-          type: string
-          format: email
-          maxLength: 254
-        username:
-          type: string
-          nullable: true
-          maxLength: 150
-        password:
-          type: string
-          writeOnly: true
-        first_name:
-          type: string
-          maxLength: 150
-        last_name:
-          type: string
-          maxLength: 150
-        role:
-          $ref: '#/components/schemas/RoleEnum'
-        phone_number:
-          type: string
-          nullable: true
-          maxLength: 15
-        address:
-          type: string
-          nullable: true
-        date_of_birth:
-          type: string
-          format: date
-          nullable: true
-      required:
-      - email
-      - password
-    UserDetail:
-      type: object
-      description: |-
-        Read-only serializer for detailed User information.
-
-        Purpose:
-            - Expose all user details for detailed display in APIs.
-
-        Fields:
-            Same as UserListSerializer, but with all fields included.
-      properties:
-        user_id:
-          type: string
-          format: uuid
-          readOnly: true
-        username:
-          type: string
-          nullable: true
-          maxLength: 150
-        email:
-          type: string
-          format: email
-          maxLength: 254
-        first_name:
-          type: string
-          maxLength: 150
-        last_name:
-          type: string
-          maxLength: 150
-        is_active:
-          type: boolean
-          readOnly: true
-          title: Active
-          description: Designates whether this user should be treated as active. Unselect
-            this instead of deleting accounts.
-        is_staff:
-          type: boolean
-          readOnly: true
-          title: Staff status
-          description: Designates whether the user can log into this admin site.
-        date_joined:
-          type: string
-          format: date-time
-          readOnly: true
-        role:
-          $ref: '#/components/schemas/RoleEnum'
-        phone_number:
-          type: string
-          nullable: true
-          maxLength: 15
-        address:
-          type: string
-          nullable: true
-        date_of_birth:
-          type: string
-          format: date
-          nullable: true
-      required:
-      - date_joined
-      - email
-      - is_active
-      - is_staff
-      - user_id
-    UserList:
-      type: object
-      description: |-
-        Read-only serializer for the User model.
-
-        Purpose:
-            - Expose non-sensitive user details for display in APIs.
-            - Hide password and other sensitive fields.
-
-        Fields:
-            user_id (UUIDField, read-only): Unique identifier for the user.
-            username (CharField): Optional username.
-            email (EmailField): User's email (used for login).
-            first_name (CharField): User's first name.
-            last_name (CharField): User's last name.
-            is_active (BooleanField, read-only): Whether the user account is active.
-            is_staff (BooleanField, read-only): Whether the user has staff/admin rights.
-            date_joined (DateTimeField, read-only): Timestamp when the user registered.
-      properties:
-        user_id:
-          type: string
-          format: uuid
-          readOnly: true
-        username:
-          type: string
-          nullable: true
-          maxLength: 150
-        email:
-          type: string
-          format: email
-          maxLength: 254
-        first_name:
-          type: string
-          maxLength: 150
-        last_name:
-          type: string
-          maxLength: 150
-        is_active:
-          type: boolean
-          readOnly: true
-          title: Active
-          description: Designates whether this user should be treated as active. Unselect
-            this instead of deleting accounts.
-        is_staff:
-          type: boolean
-          readOnly: true
-          title: Staff status
-          description: Designates whether the user can log into this admin site.
-        date_joined:
-          type: string
-          format: date-time
-          readOnly: true
-      required:
-      - date_joined
-      - email
-      - is_active
-      - is_staff
       - user_id
     UsernameResetConfirm:
       type: object

@@ -194,7 +194,6 @@ SPECTACULAR_SETTINGS = {
     'VERSION': '1.0.0',
     'SERVE_INCLUDE_SCHEMA': False,
     'SERVE_STATIC': env.bool('DEBUG', default=True),
-    # OTHER SETTINGS
 }
 
 # S3 Configuration
