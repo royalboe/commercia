@@ -22,9 +22,9 @@ Content-Type: application/json
 Authorization: Token {{token}}
 
 {
-    "name": "Pressing Iron",
+    "name": "Washing Machine",
     "price": 59,
     "stock": 50,
     "description": "A high-quality electric iron for smooth and wrinkle-free clothes.",
-    "categories": ["613e8b24-90fd-4e40-bc3e-f747318d280f"]
+    "categories": ["53fdedb9-aae1-414d-864f-61d0cfbb8612", "08dd0ce9-7f7f-4581-82e6-e126fdaa2f98"]
 }

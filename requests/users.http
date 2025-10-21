@@ -13,11 +13,11 @@ POST {{host}}/api/users/
 Content-Type: application/json
 
 {
-    "email": "testuser5@test.com",
+    "email": "testuser3@test.com",
     "password": "TestPassword123",
-    "username": "testuser5",
-    "first_name": "Test",
-    "last_name": "User",
+    "username": "testuser3",
+    "first_name": "Test3",
+    "last_name": "User3",
     "is_staff": false,
     "is_active": true,
     "role": "customer"

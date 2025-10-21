@@ -9,6 +9,6 @@ Content-Type: application/json
 Authorization: Token {{token}}
 
 {
-    "name": "Home Appliances",
+    "name": "Home appliances",
     "description": "Various home appliances including kitchen and cleaning devices."
 }
