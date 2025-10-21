@@ -256,7 +256,6 @@ CACHES = {
     }
 }
 
-# settings.py
 # LOGGING = {
 #     "version": 1,
 #     "disable_existing_loggers": False,
@@ -283,4 +282,9 @@ CACHES = {
 # SESSION_COOKIE_SECURE = True
 # CSRF_COOKIE_SECURE = True
 # X_FRAME_OPTIONS = "DENY"
+
+CSRF_TRUSTED_ORIGINS = ['https://royalboe.xyz', 'https://www.royalboe.xyz']
+
+
+
 
